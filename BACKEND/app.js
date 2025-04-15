@@ -15,6 +15,13 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(express.static('public', {
+    setHeaders: (res, path) => {
+      if (path.endsWith('.jsx')) {
+        res.set('Content-Type', 'text/javascript');
+      }
+    }
+  }));
 app.use(express.urlencoded({ extended: true }));
 
 // Cloudinary Configuration with .env
