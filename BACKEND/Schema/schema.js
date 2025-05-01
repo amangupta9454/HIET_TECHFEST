@@ -25,11 +25,13 @@ const Schema = new mongoose.Schema({
     "email": {
         type: String,
         required: true,
+        index: true,
         match: /^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/
     },
     "mobile": {
         type: String,            // ✅ Use String for mobile
         required: true,
+        index: true,
         match: /^[6-9][0-9]{9}$/
     },
     "gender": {
@@ -60,14 +62,14 @@ const Schema = new mongoose.Schema({
         match: /^[0-9]{12}$/
     },
     "teamSize": {
-        type: String,
+        type: Number, // Changed to Number
         required: true,
-        min: 1,
-        max: 4
+        min: [1, 'Team size must be at least 1'], // Numerical range validation
+        max: [4, 'Team size cannot exceed 4']
     },
-    "aadharImage":{
-        type:String,
-        required:true
+    "aadharImage": {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 

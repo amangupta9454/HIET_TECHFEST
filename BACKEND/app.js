@@ -1,7 +1,7 @@
 const express = require("express");
 const { default: mongoose } = require("mongoose");
 require('dotenv').config();
-const Model = require("./Schema/schema.js");
+const DataRegisterModel = require("./Schema/schema.js");
 const app = express();
 const cors = require("cors");
 const multer = require("multer");
@@ -9,11 +9,19 @@ const { v4: uuidv4 } = require('uuid');
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const UserModel = require("./Schema/userSchema.js");
+const os = require('os');
+const path = require('path');
 
-app.use(cors({
-    origin: "*"
-}));
+// Ensure tmp directory exists
+const tmpDir = path.join(os.tmpdir(), 'uploads');
+if (!fs.existsSync(tmpDir)) {
+  fs.mkdirSync(tmpDir, { recursive: true });
+}
 
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.static('public', {
     setHeaders: (res, path) => {
@@ -21,13 +29,17 @@ app.use(express.static('public', {
         res.set('Content-Type', 'text/javascript');
       }
     }
-  }));
+}));
 app.use(express.urlencoded({ extended: true }));
 
-// Cloudinary Configuration with .env
+// Cloudinary Configuration
+cloudinary.config({ 
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
+});
 
-
-// Email functionality
+// Email Configuration
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -38,11 +50,37 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Function to generate email template using schema fields only
+// Generate OTP
+const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// Send OTP Email
+const sendOTPEmail = async (email, otp) => {
+    try {
+        const mailOptions = {
+            from: `"Event Registration" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: 'OTP for Registration',
+            html: `
+                <h2>Your OTP</h2>
+                <p>Your OTP for registration is: <strong>${otp}</strong></p>
+                <p>This OTP is valid for 10 minutes.</p>
+            `
+        };
+        const info = await transporter.sendMail(mailOptions);
+        return true;
+    } catch (error) {
+        console.error('Error sending OTP email:', error);
+        return false;
+    }
+};
+
+// Send Confirmation Email
 const generateEmailTemplate = (userData) => {
     return `
         <!DOCTYPE html>
-       <html>
+        <html>
         <head>
             <style>
                 .container {
@@ -107,12 +145,10 @@ const generateEmailTemplate = (userData) => {
         <body>
             <div class="container">
                 <h2 class="header">Registration Confirmation</h2>
-                
                 <div class="greeting">
                     <p>Dear ${userData.teamLeaderName},</p>
                     <p>I hope you're doing well! We’re excited to inform you that you have successfully registered for the HIET Ghaziabad Tech Event. Your registration details are provided below for your reference.</p>
                 </div>
-
                 <table class="data-table">
                     <tr>
                         <th>Field</th>
@@ -159,7 +195,6 @@ const generateEmailTemplate = (userData) => {
                         <td>${userData.teamSize}</td>
                     </tr>
                 </table>
-
                 <div class="rules-section">
                     <h3>Event Rules</h3>
                     <ul>
@@ -170,7 +205,6 @@ const generateEmailTemplate = (userData) => {
                         <li>Respect all participants and organizers</li>
                     </ul>
                 </div>
-
                 <div class="footer">
                     <p>Best regards,<br>The Event Team<br>HIET Ghaziabad</p>
                 </div>
@@ -180,7 +214,6 @@ const generateEmailTemplate = (userData) => {
     `;
 };
 
-// Function to send confirmation email
 const sendConfirmationEmail = async (userData) => {
     try {
         const mailOptions = {
@@ -189,9 +222,7 @@ const sendConfirmationEmail = async (userData) => {
             subject: `Registration Confirmation - ${userData.event}`,
             html: generateEmailTemplate(userData)
         };
-
         const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent: ' + info.messageId);
         return true;
     } catch (error) {
         console.error('Error sending email:', error);
@@ -199,15 +230,22 @@ const sendConfirmationEmail = async (userData) => {
     }
 };
 
-app.get("/", (req, res) => {
-    res.send({"msg": "hi"});
-});
+// JWT Middleware
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.status(401).send({ message: 'Access denied' });
 
-const PORT = process.env.PORT || 5000; 
-app.listen(PORT, () => {
-    console.log(`Server running on PORT ${PORT}`);
-});
+    try {
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = verified;
+        next();
+    } catch (err) {
+        res.status(400).send({ message: 'Invalid token' });
+    }
+};
 
+// Database Connection
 const connectiontodatabase = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI);
@@ -218,19 +256,11 @@ const connectiontodatabase = async () => {
 };
 
 connectiontodatabase();
-// cloudinary
 
-cloudinary.config({ 
-    cloud_name: process.env.CLOUD_NAME,
-    api_key: process.env.API_KEY,
-    api_secret: process.env.API_SECRET
-});
-
-// Image storage configuration
+// Multer Storage
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-
-        cb(null, '/tmp');
+        cb(null, tmpDir);
     },
     filename: function (req, file, cb) {
         const uniqueid = uuidv4();
@@ -243,11 +273,133 @@ const upload = multer({
     limits: { fileSize: 300000 },
 });
 
-// Unique public id in cloudinary
-const randoms = uuidv4();
-const randoms2 = uuidv4();
+// User Registration
+app.post('/api/user/register', upload.single('image'), async (req, res) => {
+    const { name, email, mobile, college, branch, year, password } = req.body;
+    const image = req.file;
 
-app.post('/api/register', upload.fields([
+    try {
+        if (!name || !email || !mobile || !college || !branch || !year || !password || !image) {
+            return res.status(400).send({ message: 'All fields are required' });
+        }
+
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser) {
+            return res.status(409).send({ message: 'User already exists' });
+        }
+
+        if (!fs.existsSync(image.path)) {
+            return res.status(500).send({ message: 'Uploaded file not found' });
+        }
+
+        const uploadResult = await cloudinary.uploader.upload(image.path, {
+            public_id: uuidv4() + image.originalname,
+        });
+
+        fs.unlink(image.path, (err) => {
+            if (err) console.log('Error deleting image file:', err);
+        });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const otp = generateOTP();
+
+        const user = new UserModel({
+            name,
+            email,
+            mobile,
+            college,
+            branch,
+            year,
+            image: uploadResult.secure_url,
+            password: hashedPassword,
+            otp,
+            otpExpires: Date.now() + 10 * 60 * 1000, // 10 minutes
+        });
+
+        await user.save();
+        const emailSent = await sendOTPEmail(email, otp);
+        if (!emailSent) {
+            return res.status(500).send({ message: 'Failed to send OTP' });
+        }
+
+        res.status(201).send({ message: 'OTP sent to your email' });
+    } catch (err) {
+        console.error('Registration error:', err);
+        res.status(500).send({ message: 'Server error', error: err.message });
+    }
+});
+
+// OTP Verification
+app.post('/api/user/verify-otp', async (req, res) => {
+    const { email, otp } = req.body;
+
+    try {
+        if (!email || !otp) {
+            return res.status(400).send({ message: 'Email and OTP are required' });
+        }
+
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+            return res.status(404).send({ message: 'User not found' });
+        }
+
+        if (user.otp !== otp || user.otpExpires < Date.now()) {
+            return res.status(400).send({ message: 'Invalid or expired OTP' });
+        }
+
+        user.otp = null;
+        user.otpExpires = null;
+        user.isVerified = true;
+        await user.save();
+
+        res.status(200).send({ message: 'OTP verified successfully' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({ message: 'Server error' });
+    }
+});
+
+// User Login
+app.post('/api/user/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        if (!email || !password) {
+            return res.status(400).send({ message: 'Email and password are required' });
+        }
+
+        const user = await UserModel.findOne({ email });
+        if (!user || !user.isVerified) {
+            return res.status(401).send({ message: 'Invalid credentials or unverified account' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).send({ message: 'Invalid credentials' });
+        }
+
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        res.status(200).send({ token });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({ message: 'Server error' });
+    }
+});
+
+// User Dashboard
+app.get('/api/user/dashboard', authenticateToken, async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.user.userId).select('-password -otp -otpExpires');
+        const events = await DataRegisterModel.find({ email: user.email });
+        res.status(200).send({ user, events });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({ message: 'Server error' });
+    }
+});
+
+// Event Registration (Protected)
+app.post('/api/register', authenticateToken, upload.fields([
     { name: "clg_id" },
     { name: "aadharImage" }
 ]), async (req, res) => {
@@ -266,101 +418,100 @@ app.post('/api/register', upload.fields([
         teamSize 
     } = req.body;
 
-    console.log(req.body);
-
     try {   
         if (!email || !mobile || !event || !teamName || !teamLeaderName || !college || !course || !year || !aadhar || !rollno || !gender || !teamSize) {
-            console.log("Missing required fields");
-            return res.status(400).send({ "message": "Missing required fields" });
+            return res.status(400).send({ message: "Missing required fields" });
         }
 
-        const findStudent = await Model.findOne({ email, mobile });
+        const findStudent = await DataRegisterModel.findOne({ email, mobile });
         if (findStudent) {
-            return res.status(409).send({ "message": "You are already registered" });
+            return res.status(409).send({ message: "You are already registered" });
         }
 
-        console.log(req.files);
         if (!req.files || !req.files.clg_id || !req.files.aadharImage) {
-            console.log("can't receive files. Check that you have sent both the files");
-            return res.status(400).send({ "message": "can't receive files. Check that you have sent both the files" });
+            return res.status(400).send({ message: "Both college ID and Aadhar image are required" });
         }
 
         const uploadResultcollegeId = await cloudinary.uploader.upload(
             req.files.clg_id[0].path, {
-                public_id: randoms + "" + req.files.clg_id[0].originalname,
+                public_id: uuidv4() + "" + req.files.clg_id[0].originalname,
             }
         );
 
-        console.log(uploadResultcollegeId);
         if (!uploadResultcollegeId) {
-            console.log("can't upload image try again");
-            return res.status(400).send({ "message": "can't upload college ID image try again" });
+            return res.status(400).send({ message: "Can't upload college ID image, try again" });
         }
 
         const uploadResultaadharcard = await cloudinary.uploader.upload(
             req.files.aadharImage[0].path, {
-                public_id: randoms2 + "" + req.files.aadharImage[0].originalname,
+                public_id: uuidv4() + "" + req.files.aadharImage[0].originalname,
             }
         );
 
-        console.log(uploadResultaadharcard);
         if (!uploadResultaadharcard) {
-            console.log("can't upload aadhar image try again");
-            return res.status(400).send({ "message": "can't upload aadhar image try again" });
+            return res.status(400).send({ message: "Can't upload Aadhar image, try again" });
         }
 
         fs.unlink(req.files.clg_id[0].path, (err) => {
-            if (!err) {
-                console.log("college id file deleted");
-            } else {
-                console.log("error in deleting file college id");
-            }
+            if (err) console.log("Error deleting college id file:", err);
         });
 
         fs.unlink(req.files.aadharImage[0].path, (err) => {
-            if (!err) {
-                console.log("aadhar card file deleted");
-            } else {
-                console.log("error in deleting file aadhar card");
-            }
+            if (err) console.log("Error deleting aadhar card file:", err);
         });
 
-        const newdata = await new Model({
-            "clg_id": uploadResultcollegeId.secure_url,
-            "registrationId": uuidv4(),
-            "event": event,
-            "teamName": teamName,
-            "teamLeaderName": teamLeaderName,
-            "email": email,
-            "mobile": parseInt(mobile),
-            "gender": gender,
-            "college": college,
-            "course": course,
-            "year": parseInt(year),
-            "rollno": rollno,
-            "aadhar": aadhar,
-            "teamSize": parseInt(teamSize),
-            "aadharImage": uploadResultaadharcard.secure_url
+         // Sanitize and validate teamSize
+         const parsedTeamSize = Number(teamSize); // Use Number() for robustness
+         console.log('Parsed teamSize:', parsedTeamSize); // Debug log
+         if (isNaN(parsedTeamSize) || parsedTeamSize < 1 || parsedTeamSize > 4) {
+             return res.status(400).send({ message: "Team size must be a number between 1 and 4" });
+         }
+        const newdata = new DataRegisterModel({
+            clg_id: uploadResultcollegeId.secure_url,
+            registrationId: uuidv4(),
+            event,
+            teamName,
+            teamLeaderName,
+            email,
+            mobile: parseInt(mobile),
+            gender,
+            college,
+            course,
+            year: parseInt(year),
+            rollno,
+            aadhar,
+            teamSize: parsedTeamSize,
+            aadharImage: uploadResultaadharcard.secure_url
         });
 
+        
         const savedata = await newdata.save();
+        
         if (savedata) {
-            // Call the email sending function here
             const emailSent = await sendConfirmationEmail(savedata);
             if (!emailSent) {
                 console.log("Email sending failed, but registration successful");
             }
 
             return res.status(201).send({
-                "message": `Congrats😀 ${teamName} Registered Successfully`,
-                "registrationId": savedata.registrationId,
-                "data": savedata
+                message: `Congrats😀 ${teamName} Registered Successfully`,
+                registrationId: savedata.registrationId,
+                data: savedata
             });
         } else {
-            return res.status(400).send({ "message": "can't save data. Try again" });
+            return res.status(400).send({ message: "Can't save data. Try again" });
         }
     } catch (err) {
         console.log(err);
-        return res.status(500).send({ "message": "Server error" });
+        return res.status(500).send({ message: "Server error" });
     }
+});
+
+app.get("/", (req, res) => {
+    res.send({"msg": "hi"});
+});
+
+const PORT = process.env.PORT || 5000; 
+app.listen(PORT, () => {
+    console.log(`Server running on PORT ${PORT}`);
 });

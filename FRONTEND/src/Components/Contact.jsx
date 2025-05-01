@@ -89,10 +89,10 @@ const Contact = () => {
               <select
                 id="branch"
                 name="branch"
-                className="w-full p-4 bg-white/5 text-white border border-gray-600 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all duration-300 hover:bg-white/10"
+                className="w-full p-4 bg-white/5 text-black border border-gray-600 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all duration-300 hover:bg-white/10"
                 required
               >
-                <option value="" disabled selected>Select Your Branch</option>
+                <option value="select">Select Your Branch</option>
                 <option value="CSE">CSE</option>
                 <option value="IT">IT</option>
                 <option value="ECE">ECE</option>

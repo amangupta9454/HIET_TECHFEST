@@ -47,6 +47,7 @@ const Registration = () => {
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
+
         if (files) {
             setUser(prev => ({
                 ...prev,
@@ -65,8 +66,15 @@ const Registration = () => {
         setError('');
         setSuccess('');
     
+
         if (!user.event || !user.teamName || !user.teamLeaderName || !user.email) {
             setError('Please fill all required fields');
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError('You must be logged in to register');
             return;
         }
 
@@ -76,14 +84,15 @@ const Registration = () => {
                 formData.append(key, user[key]);
             }
         });
-        const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        const baseUrl = import.meta.env.VITE_BACKEND_URL;
         const url = `${baseUrl}/api/register`;
-        console.log('Raw VITE_BACKEND_URL:', import.meta.env.VITE_BACKEND_URL);
-        console.log('Using URL:', url);
 
         try {
             const response = await fetch(url, {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 body: formData,
             });
         
@@ -223,7 +232,7 @@ const Registration = () => {
                                     { value: "3", label: "3" },
                                     { value: "4", label: "4" },
                                 ]},
-                                { label: "Team Size", name: "teamSize", type: "number", placeholder: "Enter team size" },
+                                { label: "Team Size", name: "teamSize", type: "number", placeholder: "Team size (1-4)", min: 1, max: 4 },
                                 { label: "University Roll No", name: "rollno", type: "text", placeholder: "Enter roll number" },
                                 { label: "Aadhar Number", name: "aadhar", type: "text", placeholder: "Enter 12-digit Aadhar number" },
                             ].map((field) => (
@@ -251,10 +260,12 @@ const Registration = () => {
                                         <input
                                             type={field.type}
                                             name={field.name}
-                                            value={user[field.name]}
+                                            value={field.type === "number" ? user[field.name] || "" : user[field.name]}
                                             onChange={handleChange}
                                             placeholder={field.placeholder}
-                                            className="w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border border-white/50 focus:ring-4 focus:ring-purple-600/60 focus:border-purple-500 transition-all duration-700 hover:bg-white/40 placeholder-white/70 shadow-[0_4px_15px_rgba(0,0,0,0.2)]"
+                                            min={field.min}
+                                            max={field.max}
+                                            className="w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border border-white/50 focus:ring-4 focus:ring-purple-600/60 focus:border-purple-500 transition-all duration-700 hover:bg-white/40 ennemieplaceholder-white/70 shadow-[0_4px_15px_rgba(0,0,0,0.2)]"
                                         />
                                     )}
                                 </motion.div>

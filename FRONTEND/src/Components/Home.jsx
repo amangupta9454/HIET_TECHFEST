@@ -14,6 +14,7 @@ import aadeshImage from "../assets/Aadesh.jpg";
 import sahilKumarImage from "../assets/Sahilkumar.jpg";
 import sahilVermaImage from "../assets/sahilverma.jpg";
 import tanuImage from "../assets/tanu.jpg";
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const [text, setText] = useState("");
@@ -157,7 +158,7 @@ const Home = () => {
         <marquee behavior="scroll" direction="left" scrollamount="8" className="text-white text-2xl font-bold tracking-wide uppercase hover:text-cyan-400 transition-colors duration-300">
           🌟 Welcome to The Crossroad 2025! 🚀
           Get ready for an electrifying experience! HIET Ghaziabad is thrilled to host the most exciting technical fest of the year from <span className="text-blue-400 font-bold">12th November to 15th November.</span> Mark your calendars, gather your squad, and dive into a world of innovation, creativity, and endless possibilities!
-          👉 Don't miss out — <a href="/registration" className="text-blue-500 hover:text-purple-600 underline ml-2">Register Now</a>
+          👉 Don't miss out —  <Link to="/registration"className="text-blue-500 hover:text-purple-600 underline ml-2">Register Now</Link>
         </marquee>
       </div>
 
