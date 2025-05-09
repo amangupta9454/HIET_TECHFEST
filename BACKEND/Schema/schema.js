@@ -62,16 +62,12 @@ const Schema = new mongoose.Schema({
         match: /^[0-9]{12}$/
     },
     "teamSize": {
-        type: Number,
+        type: Number, // Changed to Number
         required: true,
-        min: [1, 'Team size must be at least 1'],
+        min: [1, 'Team size must be at least 1'], // Numerical range validation
         max: [4, 'Team size cannot exceed 4']
     },
     "aadharImage": {
-        type: String,
-        required: true
-    },
-    "problemSolvingPPT": {
         type: String,
         required: true
     }
