@@ -55,7 +55,7 @@ const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Send OTP Email
+// Send WTP Email
 const sendOTPEmail = async (email, otp) => {
     try {
         const mailOptions = {
@@ -270,7 +270,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 300000 },
+    limits: { fileSize: 5000000 }, // Updated to 5MB
 });
 
 // User Registration
@@ -401,7 +401,8 @@ app.get('/api/user/dashboard', authenticateToken, async (req, res) => {
 // Event Registration (Protected)
 app.post('/api/register', authenticateToken, upload.fields([
     { name: "clg_id" },
-    { name: "aadharImage" }
+    { name: "aadharImage" },
+    { name: "problemSolvingPPT" }
 ]), async (req, res) => {
     const { 
         event,
@@ -428,8 +429,8 @@ app.post('/api/register', authenticateToken, upload.fields([
             return res.status(409).send({ message: "You are already registered" });
         }
 
-        if (!req.files || !req.files.clg_id || !req.files.aadharImage) {
-            return res.status(400).send({ message: "Both college ID and Aadhar image are required" });
+        if (!req.files || !req.files.clg_id || !req.files.aadharImage || !req.files.problemSolvingPPT) {
+            return res.status(400).send({ message: "College ID, Aadhar image, and Problem-Solving PPT are required" });
         }
 
         const uploadResultcollegeId = await cloudinary.uploader.upload(
@@ -452,12 +453,26 @@ app.post('/api/register', authenticateToken, upload.fields([
             return res.status(400).send({ message: "Can't upload Aadhar image, try again" });
         }
 
+        const uploadResultPPT = await cloudinary.uploader.upload(
+            req.files.problemSolvingPPT[0].path, {
+                public_id: uuidv4() + "" + req.files.problemSolvingPPT[0].originalname,
+            }
+        );
+
+        if (!uploadResultPPT) {
+            return res.status(400).send({ message: "Can't upload Problem-Solving PPT, try again" });
+        }
+
         fs.unlink(req.files.clg_id[0].path, (err) => {
             if (err) console.log("Error deleting college id file:", err);
         });
 
         fs.unlink(req.files.aadharImage[0].path, (err) => {
             if (err) console.log("Error deleting aadhar card file:", err);
+        });
+
+        fs.unlink(req.files.problemSolvingPPT[0].path, (err) => {
+            if (err) console.log("Error deleting PPT file:", err);
         });
 
          // Sanitize and validate teamSize
@@ -481,7 +496,8 @@ app.post('/api/register', authenticateToken, upload.fields([
             rollno,
             aadhar,
             teamSize: parsedTeamSize,
-            aadharImage: uploadResultaadharcard.secure_url
+            aadharImage: uploadResultaadharcard.secure_url,
+            problemSolvingPPT: uploadResultPPT.secure_url
         });
 
         

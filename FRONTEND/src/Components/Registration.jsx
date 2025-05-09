@@ -19,6 +19,7 @@ const Registration = () => {
         aadhar: "",
         teamSize: "",
         aadharImage: null,
+        problemSolvingPPT: null,
         registrationId: "",
     });
 
@@ -67,8 +68,8 @@ const Registration = () => {
         setSuccess('');
     
 
-        if (!user.event || !user.teamName || !user.teamLeaderName || !user.email) {
-            setError('Please fill all required fields');
+        if (!user.event || !user.teamName || !user.teamLeaderName || !user.email || !user.problemSolvingPPT) {
+            setError('Please fill all required fields including Problem-Solving PPT');
             return;
         }
 
@@ -114,6 +115,7 @@ const Registration = () => {
                     aadhar: "",
                     teamSize: "",
                     aadharImage: null,
+                    problemSolvingPPT: null,
                     registrationId: "",
                 });
             } else {
@@ -136,10 +138,10 @@ const Registration = () => {
             ></div>
             <div className="relative z-0 flex items-center justify-center p-6 min-h-screen">
                 <motion.div 
-                    initial={{ opacity: 0, scale: 0.85, rotate: -5 }}
+                    initial={{ opacity: 0, scale: 0.65, rotate: -2 }}
                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
-                    className="registration-container max-w-3xl w-full bg-gradient-to-br from-white/10 to-white/20 backdrop-blur-2xl rounded-3xl shadow-[0_0_50px_rgba(147,51,234,0.4)] p-12 border border-white/40 hover:shadow-[0_0_80px_rgba(147,51,234,0.6)] transition-all duration-700"
+                    className="registration-container max-w-3xl w-full bg-gradient-to-br from-white/10 to-white/20 backdrop-blur-2xl rounded-3xl shadow-[0_0_50px_rgba(147,51,234,0.4)] p-12 border border-white/40 "
                     onMouseEnter={() => gsap.to('.registration-container', { rotate: 1, scale: 1, duration: 0.8 })}
                     onMouseLeave={() => gsap.to('.registration-container', { rotate: 0, scale: 1, duration: 0.8 })}
                 >
@@ -276,6 +278,7 @@ const Registration = () => {
                             {[
                                 { label: "Aadhar Card (Max 300KB)", name: "aadharImage" },
                                 { label: "College ID (Max 300KB)", name: "clg_id" },
+                                { label: "Problem-Solving PPT (Max 5MB)", name: "problemSolvingPPT" },
                             ].map((field) => (
                                 <motion.div
                                     key={field.name}
@@ -288,7 +291,7 @@ const Registration = () => {
                                         type="file"
                                         name={field.name}
                                         onChange={handleChange}
-                                        accept="image/jpeg,image/jpg,image/png,application/pdf"
+                                        accept={field.name === "problemSolvingPPT" ? "application/pdf,.ppt,.pptx" : "image/jpeg,image/jpg,image/png,application/pdf"}
                                         className="w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border border-white/50 file:mr-8 file:py-4 file:px-8 file:rounded-2xl file:border-0 file:bg-gradient-to-r file:from-purple-700 file:to-indigo-700 file:text-white hover:file:from-purple-800 hover:file:to-indigo-800 transition-all duration-700 shadow-[0_4px_15px_rgba(0,0,0,0.2)]"
                                     />
                                 </motion.div>
