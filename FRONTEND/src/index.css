@@ -1,15 +1,24 @@
 @import "tailwindcss";
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
-
-.animate-floating-glow {
-  animation: float 6s ease-in-out infinite;
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.4); }
+}
+.animate-floating { animation: float 3s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.parallax-bg {
+  background: url('https://images.unsplash.com/photo-1516321310764-8a238f827ce5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center;
+  background-size: cover;
+  transform: translateY(0);
+  transition: transform 0.5s;
+}
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* ✨ Fade in */

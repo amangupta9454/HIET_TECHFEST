@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import event1 from '/1.jpeg';
 import event2 from '/cultural.jpg';
 import event3 from '/dance.jpg';
@@ -120,48 +121,58 @@ const events = [
   },
 ];
 
-const EventCard = ({ imageSrc, eventName, onClick }) => (
-  <div className="group relative bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-500 border-2 border-transparent rounded-3xl shadow-lg overflow-hidden transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 hover:shadow-[0_0_60px_rgba(255,255,255,0.3)] hover:ring-4 hover:ring-pink-400 animate-floating-glow">
-    <div className="relative h-60 w-full overflow-hidden">
-      <img
-        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out drop-shadow-xl"
-        src={imageSrc}
-        alt={eventName}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-50" />
+const EventCard = ({ imageSrc, eventName, onClick }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div className="group relative bg-gradient-to-br from-purple-700 via-indigo-600 to-blue-600 border-2 border-transparent rounded-3xl shadow-xl overflow-hidden transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 hover:shadow-[0_0_80px_rgba(255,255,255,0.4)] hover:ring-4 hover:ring-pink-500 animate-floating">
+      <div className="relative h-64 w-full overflow-hidden">
+        {!loaded && (
+          <div className="absolute inset-0 bg-gray-300 animate-pulse" />
+        )}
+        <img
+          className={`w-full h-full object-cover group-hover:scale-115 transition-transform duration-700 ease-in-out drop-shadow-2xl ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          src={imageSrc}
+          alt={eventName}
+          onLoad={() => setLoaded(true)}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
+      </div>
+      <div className="p-6 text-center relative z-10 bg-gradient-to-b from-transparent to-black/30 rounded-b-3xl">
+        <h2 className="text-2xl font-extrabold text-white drop-shadow-xl group-hover:text-yellow-300 transition-all duration-300 tracking-wide">
+          {eventName}
+        </h2>
+        <button
+          onClick={onClick}
+          className="mt-4 px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold rounded-full shadow-lg hover:from-indigo-700 hover:to-purple-800 hover:scale-105 transition-all duration-300 hover:ring-2 hover:ring-pink-300"
+        >
+          Know More
+        </button>
+        <span className="absolute top-4 right-4 text-lg text-white opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse">
+          ✨
+        </span>
+      </div>
     </div>
-    <div className="p-6 text-center relative z-10 backdrop-blur-md bg-white/5 rounded-b-3xl">
-      <h2 className="text-2xl font-extrabold text-white drop-shadow-xl group-hover:text-yellow-400 transition-all duration-300 tracking-wider">
-        {eventName}
-      </h2>
-      <button
-        onClick={onClick}
-        className="mt-4 px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-700 text-white font-semibold rounded-full shadow-lg hover:from-indigo-700 hover:to-purple-800 hover:scale-105 transition-all duration-300 hover:ring-2 hover:ring-pink-300"
-      >
-        Know More
-      </button>
-      <span className="absolute top-4 right-4 text-lg text-white opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse">
-        ✨
-      </span>
-    </div>
-  </div>
-);
+  );
+};
 
 const Events = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   return (
-    <div className="relative z-0 min-h-screen py-24 px-4 bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] overflow-hidden">
-
+    <div className="relative z-0 min-h-screen py-16 px-4 bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] overflow-hidden">
       {/* Sparkling Background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle,_#ffffff22_1px,_transparent_1px)] [background-size:20px_20px] opacity-20 pointer-events-none animate-pulse"></div>
 
-      <h1 className="text-5xl font-extrabold text-center text-white drop-shadow-lg mb-16 animate-fade-in text-shadow-lg">
+      {/* Parallax Background */}
+      <div className="absolute inset-0 parallax-bg opacity-30" />
+
+      <h1 className="text-4xl sm:text-5xl font-extrabold text-center text-white drop-shadow-lg mb-12 animate-fade-in">
         🎉 Upcoming Tech Events
       </h1>
 
       {/* Event Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-12 max-w-7xl mx-auto px-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto px-4">
         {events.map((event) => (
           <EventCard
             key={event.id}
@@ -175,18 +186,18 @@ const Events = () => {
       {/* Modal */}
       {selectedEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all duration-300">
-          <div className="bg-gradient-to-tl from-indigo-600 via-purple-600 to-pink-600 border-2 border-gray-200 rounded-3xl p-8 max-w-2xl w-full mx-4 relative shadow-2xl animate-fade-in-up max-h-[85vh] overflow-y-auto">
+          <div className="glassmorphism rounded-3xl p-6 sm:p-8 max-w-lg w-full mx-4 relative shadow-2xl animate-fade-in-up max-h-[85vh] overflow-y-auto">
             <button
               onClick={() => setSelectedEvent(null)}
               className="absolute top-4 right-4 text-gray-200 hover:text-red-400 transition-colors"
             >
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            <h3 className="text-3xl font-extrabold text-white mb-6 text-center">{selectedEvent.name}</h3>
-            <div className="space-y-4 text-gray-200 text-[16px] leading-relaxed">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-6 text-center">{selectedEvent.name}</h3>
+            <div className="space-y-4 text-gray-200 text-sm sm:text-base leading-relaxed">
               <p><strong>Description:</strong> {selectedEvent.details.description}</p>
               <p><strong>Timing:</strong> {selectedEvent.details.timing}</p>
               <p><strong>Location:</strong> {selectedEvent.details.location}</p>
@@ -194,13 +205,19 @@ const Events = () => {
               <p><strong>Organizer:</strong> {selectedEvent.details.organizer}</p>
             </div>
 
-            <div className="mt-6 text-center">
+            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="px-6 py-3 bg-gradient-to-r from-pink-600 to-indigo-600 text-white font-semibold rounded-full hover:bg-gradient-to-r hover:from-pink-700 hover:to-indigo-700 transition-all duration-300"
+                className="px-6 py-3 bg-gradient-to-r from-pink-600 to-indigo-600 text-white font-semibold rounded-full hover:from-pink-700 hover:to-indigo-700 transition-all duration-300"
               >
                 Close
               </button>
+              <Link to="/registration"
+                
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold rounded-full hover:from-green-600 hover:to-teal-600 transition-all duration-300"
+              >
+                Register Now
+              </Link>
             </div>
           </div>
         </div>
