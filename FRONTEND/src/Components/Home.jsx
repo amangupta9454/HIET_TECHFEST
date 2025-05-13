@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import logo from "/logo.jpeg";
 import hietlogo from "/hietlogo.png";
 import { FaYoutube, FaWhatsapp, FaLinkedin, FaInstagram, FaEnvelope, FaArrowUp } from 'react-icons/fa';
-import festImage from "/1.jpeg";
+import festImage from "../assets/crossroad.jpeg";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";

@@ -1,124 +1,217 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import event1 from '/1.jpeg';
-import event2 from '/cultural.jpg';
-import event3 from '/dance.jpg';
-import event4 from '/hietlogo.png';
-import event5 from '/logo.jpeg';
-import event6 from '/project 1.jpeg';
-import event7 from '/project.jpeg';
-import event8 from '/robo.jpg';
-import event9 from '/song.jpg';
+import event1 from '../assets/coding.jpg';
+import event2 from '../assets/project.jpg';
+import event3 from '../assets/robo.jpg';
+import event4 from '../assets/cultural.jpg';
+import event5 from '../assets/rangoli.jpeg';
+import event6 from '../assets/food.jpg';
+import event7 from '../assets/drama.jpg';
+import event8 from '../assets/song.jpg';
+import event9 from '../assets/poster.jpg';
+import event10 from '../assets/rock.jpg';
+import event11 from '../assets/dance.jpg';
+import w1 from '../assets/w1.jpg';
+import w2 from '../assets/w2.jpg';
+import w3 from '../assets/w3.jpg';
+import w4 from '../assets/w4.jpg';
+import w5 from '../assets/w5.jpg';
+import w6 from '../assets/w6.jpg';
+import w7 from '../assets/w7.jpg';
+import w8 from '../assets/w8.jpg';
+import w9 from '../assets/w9.jpg';
+import w10 from '../assets/w10.jpg';
+import w11 from '../assets/w11.jpg';
+import w12 from '../assets/w12.jpg';
+import w13 from '../assets/w13.jpg';
+import w14 from '../assets/w14.jpg';
 
 const events = [
   {
     id: 1,
     imageSrc: event1,
-    name: 'Tech Hackathon',
+    name: 'Code Puzzle',
     details: {
-      description: 'A 24-hour coding marathon to build innovative solutions.',
+      description: 'A coding quiz to challenge logical and programming skills.',
       timing: 'April 20, 2025, 9:00 AM - April 21, 2025, 9:00 AM',
-      location: 'Tech Hub, Downtown',
+      location: 'Block 1 Lab F',
       judgingCriteria: 'Innovation, Functionality, Design, Presentation',
-      organizer: 'Tech Innovators Club',
+      organizer: 'Tech Fusion',
     },
   },
   {
     id: 2,
     imageSrc: event2,
-    name: 'AI Workshop',
+    name: 'Project Exhibition',
     details: {
-      description: 'Hands-on session on building AI models.',
+      description: 'Display and present innovative student projects across domains.',
       timing: 'April 22, 2025, 10:00 AM - 2:00 PM',
       location: 'AI Research Center',
-      judgingCriteria: 'N/A',
-      organizer: 'AI Pioneers',
+      judgingCriteria: 'Originality, Impact, Technical Execution',
+      organizer: 'Tech Fusion',
     },
   },
   {
     id: 3,
     imageSrc: event3,
-    name: 'Startup Pitch',
+    name: 'Robo Race',
     details: {
-      description: 'Pitch your startup idea to investors.',
+      description: 'Compete with your robots in high-speed challenges.',
       timing: 'April 23, 2025, 1:00 PM - 5:00 PM',
       location: 'Innovation Arena',
-      judgingCriteria: 'Feasibility, Scalability, Presentation',
-      organizer: 'Entrepreneur Network',
+      judgingCriteria: 'Speed, Control, Design, Navigation',
+      organizer: 'Tech Fusion',
     },
   },
   {
     id: 4,
     imageSrc: event4,
-    name: 'Robotics Challenge',
+    name: 'Cultural Events',
     details: {
-      description: 'Build and compete with autonomous robots.',
+      description: 'Showcase of traditional and contemporary performances.',
       timing: 'April 24, 2025, 9:00 AM - 3:00 PM',
-      location: 'Robotics Lab',
-      judgingCriteria: 'Design, Functionality, Performance',
-      organizer: 'RoboTech Society',
+      location: 'Auditorium',
+      judgingCriteria: 'Creativity, Presentation, Crowd Engagement',
+      organizer: 'Tech Fusion',
     },
   },
   {
     id: 5,
     imageSrc: event5,
-    name: 'Cybersecurity CTF',
+    name: 'Rangoli Competition',
     details: {
-      description: 'Capture the Flag competition for security enthusiasts.',
+      description: 'Create beautiful rangoli designs using vibrant colors.',
       timing: 'April 25, 2025, 10:00 AM - 4:00 PM',
-      location: 'Cyber Hub',
-      judgingCriteria: 'Speed, Accuracy, Problem-Solving',
-      organizer: 'CyberSec Group',
+      location: 'Cultural Hall',
+      judgingCriteria: 'Creativity, Neatness, Color Usage, Theme Representation',
+      organizer: 'Tech Fusion',
     },
   },
   {
     id: 6,
     imageSrc: event6,
-    name: 'Data Science Bootcamp',
+    name: 'Food Without Fire',
     details: {
-      description: 'Learn data analysis and visualization techniques.',
+      description: 'Prepare delicious dishes without using fire or heat.',
       timing: 'April 26, 2025, 9:00 AM - 5:00 PM',
-      location: 'Data Analytics Center',
-      judgingCriteria: 'N/A',
-      organizer: 'Data Wizards',
+      location: 'Cafeteria Hall',
+      judgingCriteria: 'Taste, Presentation, Innovation, Hygiene',
+      organizer: 'Tech Fusion',
     },
   },
   {
     id: 7,
     imageSrc: event7,
-    name: 'Game Dev Jam',
+    name: 'Nukkad Natak',
     details: {
-      description: 'Create a game in 48 hours.',
+      description: 'Perform impactful street plays on social issues.',
       timing: 'April 27-28, 2025, 10:00 AM',
-      location: 'Gaming Studio',
-      judgingCriteria: 'Creativity, Gameplay, Design',
-      organizer: 'Game Dev Collective',
+      location: 'Open Stage',
+      judgingCriteria: 'Message Clarity, Acting, Engagement, Theme Relevance',
+      organizer: 'Tech Fusion',
     },
   },
   {
     id: 8,
     imageSrc: event8,
-    name: 'AR/VR Showcase',
+    name: 'Singing',
     details: {
-      description: 'Experience and create AR/VR applications.',
+      description: 'Showcase your vocal talent across genres and languages.',
       timing: 'April 29, 2025, 11:00 AM - 3:00 PM',
-      location: 'VR Arena',
-      judgingCriteria: 'Immersion, Innovation, Usability',
-      organizer: 'XR Innovators',
+      location: 'Auditorium',
+      judgingCriteria: 'Vocal Quality, Pitch, Expression, Stage Presence',
+      organizer: 'Tech Fusion',
     },
   },
   {
     id: 9,
     imageSrc: event9,
-    name: 'Cloud Computing Summit',
+    name: 'Technical Poster',
     details: {
-      description: 'Explore cloud technologies and architectures.',
+      description: 'Present technical concepts and innovations through posters.',
       timing: 'April 30, 2025, 9:00 AM - 1:00 PM',
-      location: 'Cloud Center',
-      judgingCriteria: 'N/A',
-      organizer: 'Cloud Experts',
+      location: 'Exhibition Hall',
+      judgingCriteria: 'Content Clarity, Design, Innovation, Presentation',
+      organizer: 'Tech Fusion',
     },
   },
+  {
+    id: 10,
+    imageSrc: event11,
+    name: 'Inter College Dance Competition',
+    details: {
+      description: 'Dance teams from various colleges compete with style and energy.',
+      timing: 'April 30, 2025, 2:00 PM - 6:00 PM',
+      location: 'Main Auditorium',
+      judgingCriteria: 'Choreography, Synchronization, Expression, Costume',
+      organizer: 'Tech Fusion',
+    },
+  },
+  {
+    id: 11,
+    imageSrc: event10,
+    name: 'Rock Band',
+    details: {
+      description: 'Bands compete by performing electrifying live music sets.',
+      timing: 'April 30, 2025, 6:30 PM - 9:30 PM',
+      location: 'Main Stage',
+      judgingCriteria: 'Music Quality, Stage Presence, Originality, Coordination',
+      organizer: 'Tech Fusion',
+    },
+  },
+  {
+    id: 12,
+    imageSrc: event11,
+    name: 'Short Film Making',
+    details: {
+      description: 'Create a short film showcasing storytelling, direction, and editing skills.',
+      timing: 'May 1, 2025, 10:00 AM - 4:00 PM',
+      location: 'Media Lab',
+      judgingCriteria: 'Storytelling, Creativity, Technical Execution, Impact',
+      organizer: 'Tech Fusion',
+    },
+  },
+  {
+    id: 13,
+    imageSrc: event11,
+    name: 'Ad Mad Show',
+    details: {
+      description: 'Create fun and creative advertisements for fictional products.',
+      timing: 'May 2, 2025, 11:00 AM - 3:00 PM',
+      location: 'Seminar Hall',
+      judgingCriteria: 'Creativity, Humor, Messaging, Presentation',
+      organizer: 'Tech Fusion',
+    },
+  },
+  {
+    id: 14,
+    imageSrc: event11,
+    name: 'Treasure Hunt',
+    details: {
+      description: 'Solve clues and find hidden items in a campus-wide adventure.',
+      timing: 'May 3, 2025, 9:00 AM - 1:00 PM',
+      location: 'College Grounds',
+      judgingCriteria: 'Teamwork, Time Management, Problem-Solving',
+      organizer: 'Tech Fusion',
+    },
+  },
+];
+
+const winners = [
+  { id: 1, imageSrc: w1, name: 'Winner 1' },
+  { id: 2, imageSrc: w2, name: 'Winner 2' },
+  { id: 3, imageSrc: w3, name: 'Winner 3' },
+  { id: 4, imageSrc: w4, name: 'Winner 4' },
+  { id: 5, imageSrc: w5, name: 'Winner 5' },
+  { id: 6, imageSrc: w6, name: 'Winner 6' },
+  { id: 7, imageSrc: w7, name: 'Winner 7' },
+  { id: 8, imageSrc: w8, name: 'Winner 8' },
+  { id: 9, imageSrc: w9, name: 'Winner 9' },
+  { id: 10, imageSrc: w10, name: 'Winner 10' },
+  { id: 11, imageSrc: w11, name: 'Winner 11' },
+  { id: 12, imageSrc: w12, name: 'Winner 12' },
+  { id: 13, imageSrc: w13, name: 'Winner 13' },
+  { id: 14, imageSrc: w14, name: 'Winner 14' },
 ];
 
 const EventCard = ({ imageSrc, eventName, onClick }) => {
@@ -156,6 +249,28 @@ const EventCard = ({ imageSrc, eventName, onClick }) => {
   );
 };
 
+const WinnerCard = ({ imageSrc, winnerName }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div className="group relative bg-gradient-to-br from-teal-700 via-cyan-600 to-blue-600 border-2 border-transparent rounded-3xl shadow-xl overflow-hidden transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 hover:shadow-[0_0_80px_rgba(255,255,255,0.4)] hover:ring-4 hover:ring-yellow-500 animate-floating">
+      <div className="relative h-64 w-full overflow-hidden">
+        {!loaded && (
+          <div className="absolute inset-0 bg-gray-300 animate-pulse" />
+        )}
+        <img
+          className={`w-full h-full object-cover group-hover:scale-115 transition-transform duration-700 ease-in-out drop-shadow-2xl ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          src={imageSrc}
+          alt={winnerName}
+          onLoad={() => setLoaded(true)}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
+      </div>
+      
+    </div>
+  );
+};
+
 const Events = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -181,6 +296,22 @@ const Events = () => {
             onClick={() => setSelectedEvent(event)}
           />
         ))}
+      </div>
+
+      {/* Winners Section */}
+      <div className="mt-16">
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-center text-white drop-shadow-lg mb-12 animate-fade-in">
+          🏆 Winners of Tech Events 2024
+        </h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto px-4">
+          {winners.map((winner) => (
+            <WinnerCard
+              key={winner.id}
+              imageSrc={winner.imageSrc}
+              
+            />
+          ))}
+        </div>
       </div>
 
       {/* Modal */}
@@ -212,8 +343,8 @@ const Events = () => {
               >
                 Close
               </button>
-              <Link to="/registration"
-                
+              <Link
+                to="/registration"
                 className="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold rounded-full hover:from-green-600 hover:to-teal-600 transition-all duration-300"
               >
                 Register Now
