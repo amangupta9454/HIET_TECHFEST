@@ -317,8 +317,14 @@ const Home = () => {
               <p className="mt-2 text-sm sm:text-base text-white font-light animate-slideIn border-b-2 border-amber-500">
                 Crossroad is the technical fest of HI-TECH Institute of Engineering and Technology where creativity and innovation meet energy and excitement. With over 20+ years of excellence, this event promises inspiration and growth.
               </p>
-              <div className="mt-4 text-xs sm:text-sm text-white animate-pulse">
-                © {new Date().getFullYear()} Crossroad Technical Fest. All rights reserved.
+            < div className="mt-4 text-xs sm:text-sm text-white animate-pulse">
+              © {new Date().getFullYear()} Crossroad Technical Fest. All rights reserved.
+              </div>
+              <div className="mt-2 text-xs sm:text-sm text-white animate-pulse">
+                This website is created by{' '}
+                <a href="https://www.linkedin.com/in/amangupta9454/"target="_blank"rel="noopener noreferrer"className="underline hover:text-gray-300">
+                  Code Veda
+                </a>.
               </div>
               <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="mt-6 bg-cyan-500 text-white p-3 rounded-full hover:bg-cyan-600 transition-transform hover:scale-110 shadow-lg animate-bounce cursor-pointer">
                 <FaArrowUp size={24} />
