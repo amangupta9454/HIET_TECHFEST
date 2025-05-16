@@ -239,8 +239,25 @@ const Login = ({ setModeFromNavbar }) => {
               Not registered? Register here
             </button>
           </div>
+          <div className="info-section mt-8">
+          <h2 className="text-2xl font-bold text-white text-center mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text ">
+            Important Information
+          </h2>
+          <div className="bg-white/5 p-6 rounded-lg border border-white/20">
+            <ul className="list-disc list-inside text-white/80 space-y-2">
+              <li>
+                When you tap on login with your registered credentials, please wait for some time as the system processes your request.
+              </li>
+              <li>
+                For event registration, please use the same email you used to register as a new user. Using a different email will prevent your dashboard details from being updated for that particular event.
+              </li>
+            </ul>
+          </div>
+        </div>
         </form>
+        
       );
+      // USER CAN REGISTER THEMSELVE IF THEY ARE NOT REGISTERED USER
     } else if (mode === 'register') {
       return (
         <form onSubmit={handleRegisterSubmit} className="space-y-6">
@@ -326,6 +343,8 @@ const Login = ({ setModeFromNavbar }) => {
           </div>
         </form>
       );
+
+      // WHEN USER TRY TO LOGIN AND REQUEST FOR THE OTP
     } else if (mode === 'otp') {
       return (
         <form onSubmit={handleOtpSubmit} className="space-y-6">
@@ -354,6 +373,7 @@ const Login = ({ setModeFromNavbar }) => {
           </div>
         </form>
       );
+      // USER  DASHBOARD CODE ARE PRESENT HERE
     } else if (mode === 'dashboard' && dashboardData) {
       return (
         <div className="space-y-6">
@@ -465,7 +485,11 @@ const Login = ({ setModeFromNavbar }) => {
           {renderForm()}
         </motion.div>
       </div>
+      
     </div>
+
+
+
   );
 };
 

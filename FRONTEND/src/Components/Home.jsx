@@ -9,11 +9,11 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import harishImage from "../assets/harish.jpg";
 import shauryaImage from "../assets/shauryasingh.jpg";
-import alishImage from "../assets/AlishSirohi.jpg";
+import hod from "../assets/hod.png";
 import aadeshImage from "../assets/Aadesh.jpg";
 import sahilKumarImage from "../assets/Sahilkumar.jpg";
 import sahilVermaImage from "../assets/sahilverma.jpg";
-import tanuImage from "../assets/tanu.jpg";
+import swati from "../assets/swati.jpg";
 import { Link } from 'react-router-dom';
 
 const Home = () => {
@@ -60,51 +60,51 @@ const Home = () => {
   const teamMembers = [
     { 
       id: 1, 
-      name: "Hareesh Jaiveer Singh", 
-      designation: "Member", 
+      name: "Sumit Prajapati", 
+      designation: "Robo Race", 
       image: harishImage, 
       linkedin: "https://www.linkedin.com/in/hareesh-jaiveer-singh-317aa4328/" 
     },
     { 
       id: 2, 
-      name: "Shaurya Singh", 
-      designation: "Secretary", 
+      name: "XYZ-UNKNOWN", 
+      designation: "Ad mad Show", 
       image: shauryaImage, 
       linkedin: "https://www.linkedin.com/in/shaurya-singh-9a13b9277" 
     },
     { 
       id: 3, 
-      name: "Alish Sirohi", 
-      designation: "Vice President", 
-      image: alishImage, 
+      name: "Tripati Chaudhary", 
+      designation: "Technical Poster", 
+      image: hod, 
       linkedin: "https://www.linkedin.com/in/alish-sirohi-5a591b299" 
     },
     { 
       id: 4, 
-      name: "Aadesh Kumar", 
-      designation: "Member", 
+      name: "Riddhi Chauhan", 
+      designation: "Dance", 
       image: aadeshImage, 
       linkedin: "https://www.linkedin.com/in/aadesh-kumar-60a311304" 
     },
     { 
       id: 5, 
-      name: "Sahil Kumar", 
-      designation: "Member", 
+      name: "Priya", 
+      designation: "Code Puzzel ", 
       image: sahilKumarImage, 
       linkedin: "https://www.linkedin.com/in/sahil-kumar-a93439301" 
     },
     { 
       id: 6, 
-      name: "Sahil Verma", 
-      designation: "President", 
+      name: "Kapil Sharma", 
+      designation: "Project Exhibition", 
       image: sahilVermaImage, 
       linkedin: "https://www.linkedin.com/in/sahil-verma-957528310" 
     },
     { 
       id: 7, 
-      name: "Tanu Jha", 
-      designation: "Member", 
-      image: tanuImage, 
+      name: "Swati Chaudhary", 
+      designation: "Food without Fire", 
+      image: swati, 
       linkedin: "https://www.linkedin.com/in/tanu-jha-78029a347" 
     },
   ];
@@ -234,7 +234,7 @@ const Home = () => {
                     href={member.linkedin}
                     className="relative inline-block mt-5 px-7 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 transform transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-cyan-300"
                   >
-                    LinkedIn
+                    Whatsapp
                     <span className="absolute inset-0 rounded-full bg-white opacity-10 scale-0 transition-all duration-300 group-hover:scale-100"></span>
                   </a>
                 </div>
