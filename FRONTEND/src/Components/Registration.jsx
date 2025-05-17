@@ -37,7 +37,7 @@ const Registration = () => {
             });
             const data = await response.json();
             if (response.ok) {
-                setUser((prev) => ({ ...prev, email: data.user.email, mobile:data.user.mobile}));
+                setUser((prev) => ({ ...prev, email: data.user.email, mobile: data.user.mobile }));
             } else {
                 setError(data.message || 'Failed to fetch user data');
                 localStorage.removeItem('token');
@@ -80,8 +80,9 @@ const Registration = () => {
                     'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    email: user.email,
-                    mobile:user.mobile,
+                    rollno: user.rollno,
+                    teamLeaderName: user.teamLeaderName,
+                    aadhar: user.aadhar,
                 }),
             });
 
@@ -92,7 +93,7 @@ const Registration = () => {
             }
 
             if (checkData.isRegistered) {
-                setError('This mobile number, or email is already registered for an event');
+                setError('This roll number, team leader name, or Aadhar number is already registered for an event');
                 return;
             }
         } catch (err) {
@@ -124,7 +125,7 @@ const Registration = () => {
                     teamName: "",
                     teamLeaderName: "",
                     email: user.email, // Retain email
-                    mobile: user.mobile,  //   Retain mobile number
+                    mobile: user.mobile, // Retain mobile number
                     gender: "",
                     college: "",
                     course: "",

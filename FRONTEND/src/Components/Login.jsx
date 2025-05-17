@@ -261,7 +261,10 @@ const Login = ({ setModeFromNavbar }) => {
               Important Information
             </h2>
             <div className="bg-white/5 p-6 rounded-lg border border-white/20">
-              <ul className="list-disc list-inside text-white/80 space-y-2">
+              <ul className="list-disc list-inside text-white/80 space-y-2 font-semibold">
+              <li>
+                  A single email address can be used to participate in an event only once.
+                </li>
                 <li>
                   When you tap on login with your registered credentials, please wait for some time as the system processes your request.
                 </li>
