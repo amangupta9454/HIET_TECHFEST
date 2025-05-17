@@ -130,7 +130,6 @@ npm install</code></pre>
   <h2 style="color: #1e3a8a;">👥 Contributors</h2>
   <ul>
     <li><strong>Aman Gupta</strong> - MERN DEVELOPER, UI/UX, Project Lead</li>
-    <li><strong>Manish Dargan</strong> - BACKEND DEVELOPER, UI/UX, </li>
     
   </ul>
 
