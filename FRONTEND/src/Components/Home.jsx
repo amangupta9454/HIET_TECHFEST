@@ -10,7 +10,7 @@ import "slick-carousel/slick/slick-theme.css";
 import harishImage from "../assets/harish.jpg";
 import shauryaImage from "../assets/shauryasingh.jpg";
 import hod from "../assets/hod.png";
-import aadeshImage from "../assets/Aadesh.jpg";
+import aadeshImage from "../assets/riddhi.jpg";
 import sahilKumarImage from "../assets/Sahilkumar.jpg";
 import sahilVermaImage from "../assets/sahilverma.jpg";
 import swati from "../assets/swati.jpg";
