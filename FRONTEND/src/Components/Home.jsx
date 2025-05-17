@@ -6,7 +6,7 @@ import festImage from "../assets/crossroad.jpeg";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import harishImage from "../assets/harish.jpg";
+import harishImage from "../assets/sumit.jpg";
 import shauryaImage from "../assets/shauryasingh.jpg";
 import hod from "../assets/hod.png";
 import aadeshImage from "../assets/riddhi.jpg";
@@ -168,23 +168,31 @@ const Home = () => {
             <div key={i} className="absolute w-3 h-3 bg-blue-400 rounded-full opacity-75 animate-bounce" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}></div>
           ))}
         </div>
-        <div className="relative max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-white">
-            <h2 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400">
-              About The Crossroad 2025
-            </h2>
-            <p className="text-white text-lg">
-              <span className="font-bold text-yellow-500 text-justify">Crossroad 2025</span> is more than just a tech fest—it's a celebration of innovation and ingenuity. 
-              Bringing together brilliant minds from across the globe, this event offers a platform to showcase 
-              groundbreaking ideas, participate in thrilling competitions, and connect with industry leaders. 
-              With workshops, hackathons, and interactive sessions, Crossroad 2025 promises an unforgettable 
-              experience that inspires and empowers the next generation of creators and problem-solvers.
-            </p>
-          </div>
-          <div className="relative">
-            <img src={festImage} alt="Crossroad 2025 Tech Fest" className="w-full h-72 object-cover rounded-2xl shadow-lg transition-transform transform hover:scale-105"/>
-          </div>
-        </div>
+        <div className="relative max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900 to-black">
+  <div className="space-y-6 sm:space-y-8 text-white relative z-0">
+    <h2 className="crossroad-heading">
+      About The Crossroad <br /> 2025
+    </h2>
+    <p className="crossroad-paragraph">
+      <span className="font-bold text-yellow-400">Crossroad 2025</span> is a groundbreaking tech fest that redefines innovation and creativity. 
+      Uniting global visionaries, it offers an electrifying platform to unveil revolutionary ideas, compete in high-stakes challenges, and forge connections with industry pioneers. 
+      With state-of-the-art workshops, pulse-racing hackathons, and immersive experiences, Crossroad 2025 ignites inspiration and empowers the next generation of innovators to shape the future.
+    </p>
+    <div className="crossroad-glow-effect"></div>
+  </div>
+  <div className="relative">
+    <div className="crossroad-circle">
+      <div className="crossroad-circle-overlay"></div>
+      <div className="text-center space-y-4 z-0">
+        <h3 className="crossroad-circle-title">Crossroad</h3>
+        <p className="crossroad-circle-year">2025</p>
+        <p className="crossroad-circle-subtitle">Innovate & Ignite</p>
+      </div>
+      <div className="crossroad-circle-border"></div>
+      <div className="crossroad-circle-particles"></div>
+    </div>
+  </div>
+</div>
         <div className="relative flex flex-col md:flex-row justify-between items-center py-10 px-8 bg-gray-800 rounded-3xl mx-auto mt-12 max-w-4xl shadow-lg transition-all duration-300 hover:scale-105 hover:ring-4 hover:ring-purple-500 ring-cyan-500 ring-2">
           <div className="text-center md:text-left flex-1">
             <h2 className="text-3xl font-extrabold text-blue-400 hover:text-cyan-400 transition duration-300">

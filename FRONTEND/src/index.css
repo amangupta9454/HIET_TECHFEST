@@ -55,3 +55,215 @@
 .text-shadow-lg {
   text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
+/*  */
+.crossroad-heading {
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-align: center;
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899, #F59E0B);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.8));
+  animation: glow 3s ease-in-out infinite;
+  line-height: 1.3;
+  position: relative;
+  z-index: 0;
+}
+
+@media (min-width: 640px) {
+  .crossroad-heading {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .crossroad-heading {
+    font-size: 3rem;
+  }
+}
+
+.crossroad-paragraph {
+  color: white;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  background: rgba(17, 24, 39, 0.5);
+  padding: 1.25rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.crossroad-paragraph:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+}
+
+@media (min-width: 640px) {
+  .crossroad-paragraph {
+    font-size: 1rem;
+    padding: 1.75rem;
+  }
+}
+
+.crossroad-glow-effect {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.crossroad-circle {
+  width: 14rem;
+  height: 14rem;
+  margin: 0 auto;
+  background: linear-gradient(145deg, #6D28D9, #2563EB, #DB2777, #F59E0B);
+  border-radius: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .crossroad-circle {
+    width: 18rem;
+    height: 18rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .crossroad-circle {
+    width: 22rem;
+    height: 22rem;
+  }
+}
+
+/* .crossroad-circle:hover {
+  transform: scale(1.25) rotate(12deg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+} */
+
+.crossroad-circle-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, transparent, rgba(0, 0, 0, 0.6));
+  z-index: 1;
+}
+
+.crossroad-circle-title {
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+}
+
+@media (min-width: 640px) {
+  .crossroad-circle-title {
+    font-size: 2.25rem;
+  }
+}
+
+.crossroad-circle-year {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #FDE047;
+  text-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+  animation: bounce 2.5s ease-in-out infinite;
+}
+
+@media (min-width: 640px) {
+  .crossroad-circle-year {
+    font-size: 4.5rem;
+  }
+}
+
+.crossroad-circle-subtitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background: linear-gradient(45deg, #1D4ED8, #7C3AED);
+  padding: 0.1rem 0.8rem;
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s ease;
+}
+
+.crossroad-circle-subtitle:hover {
+  transform: scale(1.1);
+}
+
+@media (min-width: 640px) {
+  .crossroad-circle-subtitle {
+    font-size: 1rem;
+  }
+}
+
+.crossroad-circle-border {
+  position: absolute;
+  inset: 0;
+  border: 6px solid transparent;
+  border-top-color: #60A5FA;
+  border-right-color: #A78BFA;
+  border-bottom-color: #F472B6;
+  border-radius: 50%;
+  animation: spin-slow 6s linear infinite;
+}
+
+.crossroad-circle-particles {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.8));
+  }
+  50% {
+    filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 1));
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.1);
+  }
+}
