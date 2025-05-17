@@ -10,7 +10,7 @@ import harishImage from "../assets/sumit.jpg";
 import shauryaImage from "../assets/shauryasingh.jpg";
 import hod from "../assets/hod.png";
 import aadeshImage from "../assets/riddhi.jpg";
-import sahilKumarImage from "../assets/Sahilkumar.jpg";
+import sahilKumarImage from "../assets/priya.jpg";
 import sahilVermaImage from "../assets/sahilverma.jpg";
 import swati from "../assets/swati.jpg";
 import { Link } from 'react-router-dom';
@@ -206,50 +206,96 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="relative w-full py-16 bg-gradient-to-br from-[#070100] to-[#030c35] overflow-hidden" onMouseMove={handleMouseMove}>
-        <div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 30 }).map((_, index) => (
-            <div key={index} className="absolute text-white opacity-75 text-xs animate-pulse"
-              style={{ 
-                top: `${Math.random() * 100}%`, 
-                left: `${Math.random() * 100}%`, 
-                transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)` 
-              }}>
-              ✦
+      <section
+  className="relative w-full py-24 bg-gradient-to-br from-[#0a0015] via-[#1a0b3a] to-[#0f0025] overflow-hidden"
+  onMouseMove={handleMouseMove}
+>
+  {/* Background Stars with Enhanced Parallax */}
+  <div className="absolute inset-0 pointer-events-none">
+    {Array.from({ length: 50 }).map((_, index) => (
+      <div
+        key={index}
+        className="absolute text-cyan-300 opacity-40 text-sm animate-neon-twinkle"
+        style={{
+          top: `${Math.random() * 100}%`,
+          left: `${Math.random() * 100}%`,
+          transform: `translate(${mousePosition.x * 0.05}px, ${mousePosition.y * 0.05}px) scale(${0.6 + Math.random() * 0.4})`,
+        }}
+      >
+        ✦
+      </div>
+    ))}
+  </div>
+
+  {/* Pulsing Background Glow */}
+  <div className="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-transparent to-transparent animate-pulse-slow"></div>
+
+  {/* Section Title */}
+  <h2 className="text-5xl md:text-7xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 mb-20 relative z-0 animate-neon-glow tracking-tighter">
+    Meet Our Tech Titans
+    <span className="block h-1 w-32 mx-auto mt-3 bg-gradient-to-r from-cyan-700 to-purple-700 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.7)]"></span>
+  </h2>
+
+  {/* Slider Container */}
+  <div className="relative w-full max-w-7xl mx-auto px-6 z-0">
+    <Slider {...sliderSettings}>
+      {teamMembers.map((member) => (
+        <div key={member.id} className="p-6">
+          <div className="relative group bg-gradient-to-br from-[#1a1a2e]/70 via-[#2a2a4e]/50 to-[#3a3a6e]/30 rounded-2xl p-8 text-center backdrop-blur-xl border border-cyan-400/20 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] hover:-rotate-2">
+            {/* Card Glow Effect */}
+            <div className="absolute inset-0 bg-gradient-radial from-cyan-400/20 to-transparent blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
+
+            {/* Profile Image */}
+            <div className="relative w-44 h-44 mx-auto rounded-full border-4 border-cyan-300/50 overflow-hidden transition-all duration-700 group-hover:-translate-y-3 group-hover:scale-110 shadow-[0_0_25px_rgba(34,211,238,0.5)]">
+              <img src={member.image} alt={member.name} className="object-cover w-full h-full" />
             </div>
-          ))}
+
+            {/* Member Info */}
+            <h3 className="mt-6 text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 to-blue-300 tracking-wide transition-colors duration-300 group-hover:from-cyan-300 group-hover:to-blue-400">
+              {member.name}
+            </h3>
+            <p className="mt-3 text-lg text-gray-100 font-medium italic opacity-85 transition-opacity duration-300 group-hover:opacity-100">
+              {member.designation}
+            </p>
+
+            {/* WhatsApp Button */}
+            <a
+              href={member.linkedin}
+              className="relative inline-block mt-6 px-10 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(34,211,238,0.8)] overflow-hidden"
+            >
+              <span className="relative z-10">WhatsApp</span>
+              <span className="absolute inset-0 bg-cyan-300/30 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center rounded-full"></span>
+            </a>
+          </div>
         </div>
-        <h2 className="text-4xl font-extrabold text-center text-white mb-12 relative z-0 underline animate-pulse transition duration-300 transform hover:scale-110 hover:text-cyan-600 pt-5">
-          Meet Our Tech Titans
-        </h2>
-        <div className="relative w-full max-w-6xl mx-auto px-4 z-5">
-          <Slider {...sliderSettings}>
-            {teamMembers.map((member) => (
-              <div key={member.id} className="p-4">
-                <div className="relative group bg-gradient-to-br from-[#000000] via-[#1f1f1f] to-[#4b5563] rounded-3xl shadow-2xl p-6 text-center transform transition-all duration-500 hover:rotate-3 hover:scale-105 hover:shadow-blue-500/60 border border-cyan-500 overflow-hidden">
-                  <div className="absolute inset-0 opacity-30 bg-gradient-radial from-blue-400 to-transparent blur-3xl animate-pulse"></div>
-                  <div className="relative w-36 h-36 mx-auto rounded-full border-4 border-indigo-400 overflow-hidden transform transition-transform duration-700 group-hover:translate-y-[-10px] group-hover:scale-110 shadow-lg shadow-blue-500/50">
-                    <img src={member.image} alt={member.name} className="object-cover w-full h-full" />
-                  </div>
-                  <h3 className="mt-4 text-3xl font-extrabold text-white tracking-widest drop-shadow-lg animate-pulse hover:text-cyan-400">
-                    {member.name}
-                  </h3>
-                  <p className="text-base text-gray-300 italic opacity-95 animate-fadeInUp">
-                    {member.designation}
-                  </p>
-                  <a
-                    href={member.linkedin}
-                    className="relative inline-block mt-5 px-7 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 transform transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-cyan-300"
-                  >
-                    Whatsapp
-                    <span className="absolute inset-0 rounded-full bg-white opacity-10 scale-0 transition-all duration-300 group-hover:scale-100"></span>
-                  </a>
-                </div>
-              </div>
-            ))}
-          </Slider>
-        </div>
-      </section>
+      ))}
+    </Slider>
+  </div>
+
+  <style jsx>{`
+    @keyframes neon-twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(0.6); }
+      50% { opacity: 0.7; transform: scale(1.1); }
+    }
+    @keyframes neon-glow {
+      0%, 100% { text-shadow: 0 0 15px rgba(34, 211, 238, 0.6), 0 0 30px rgba(34, 211, 238, 0.4); }
+      50% { text-shadow: 0 0 25px rgba(34, 211, 238, 0.9), 0 0 50px rgba(34, 211, 238, 0.6); }
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.5; }
+    }
+    .animate-neon-twinkle {
+      animation: neon-twinkle ${1.5 + Math.random() * 2}s ease-in-out infinite;
+    }
+    .animate-neon-glow {
+      animation: neon-glow 4s ease-in-out infinite;
+    }
+    .animate-pulse-slow {
+      animation: pulse-slow 8s ease-in-out infinite;
+    }
+  `}</style>
+</section>
 
       {/* Footer */}
           <footer className="relative bg-gray-900 text-white py-12 px-6 sm:px-10 lg:px-20 border-t-[5px] border-cyan-500 shadow-2xl">
