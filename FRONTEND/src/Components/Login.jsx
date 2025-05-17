@@ -18,11 +18,11 @@ const Login = ({ setModeFromNavbar }) => {
   });
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [otp, setOtp] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState('');
   const [dashboardData, setDashboardData] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // New state for loading
+  const [isLoading, setIsLoading] = useState(false);
   const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
@@ -64,12 +64,54 @@ const Login = ({ setModeFromNavbar }) => {
         setDashboardData(data);
         setMode('dashboard');
       } else {
-        setError(data.message || 'Failed to fetch dashboard data');
+        setErrors({ general: data.message || 'Failed to fetch dashboard data' });
         localStorage.removeItem('token');
       }
     } catch (err) {
-      setError('Server error. Please try again.');
+      setErrors({ general: 'Server error. Please try again.' });
     }
+  };
+
+  const validateRegisterField = (name, value) => {
+    let error = '';
+    const requiredFields = ['name', 'email', 'mobile', 'college', 'branch', 'password'];
+
+    if (requiredFields.includes(name) && !value) {
+      error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+    } else if (name === 'email' && value && !/^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(value)) {
+      error = 'Invalid email format';
+    } else if (name === 'mobile' && value && !/^[6-9][0-9]{9}$/.test(value)) {
+      error = 'Mobile number must be a valid 10-digit number starting with 6-9';
+    } else if (name === 'year' && !value) {
+      error = 'Year is required';
+    } else if (name === 'year' && value && !['1', '2', '3', '4'].includes(value)) {
+      error = 'Year must be 1, 2, 3, or 4';
+    } else if (name === 'password' && value && value.length < 6) {
+      error = 'Password must be at least 6 characters';
+    } else if (name === 'image' && value && value.size > 1000000) {
+      error = 'Profile image must be less than 1MB';
+    } else if (name === 'image' && value && !['image/jpeg', 'image/jpg', 'image/png'].includes(value.type)) {
+      error = 'Profile image must be JPEG, JPG, or PNG';
+    }
+
+    return error;
+  };
+
+  const validateRegisterForm = () => {
+    const newErrors = {};
+    Object.keys(user).forEach((key) => {
+      const error = validateRegisterField(key, user[key]);
+      if (error) {
+        newErrors[key] = error;
+      }
+    });
+
+    if (!user.image) {
+      newErrors.image = 'Profile image is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleLoginChange = (e) => {
@@ -79,17 +121,26 @@ const Login = ({ setModeFromNavbar }) => {
 
   const handleRegisterChange = (e) => {
     const { name, value, files } = e.target;
+    const newValue = files ? files[0] : value;
+
     setUser((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value,
+      [name]: newValue,
+    }));
+
+    const error = validateRegisterField(name, newValue);
+    setErrors((prev) => ({
+      ...prev,
+      [name]: error,
+      general: prev.general && !error ? '' : prev.general,
     }));
   };
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setErrors({ general: '' });
     setSuccess('');
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
 
     try {
       const response = await fetch(`${baseUrl}/api/user/login`, {
@@ -103,19 +154,27 @@ const Login = ({ setModeFromNavbar }) => {
         setSuccess('Login successful!');
         fetchDashboardData(data.token);
       } else {
-        setError(data.message || 'Login failed');
+        setErrors({ general: data.message || 'Login failed' });
       }
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setErrors({ general: 'Something went wrong. Please try again.' });
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setErrors({ general: '' });
     setSuccess('');
+
+    if (!validateRegisterForm()) {
+      setErrors((prev) => ({
+        ...prev,
+        general: 'Please correct the errors in the form',
+      }));
+      return;
+    }
 
     const formData = new FormData();
     Object.keys(user).forEach((key) => {
@@ -132,16 +191,16 @@ const Login = ({ setModeFromNavbar }) => {
         setSuccess('OTP sent to your email. Please verify.');
         setMode('otp');
       } else {
-        setError(data.message || 'Registration failed');
+        setErrors({ general: data.message || 'Registration failed' });
       }
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setErrors({ general: 'Something went wrong. Please try again.' });
     }
   };
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setErrors({ general: '' });
     setSuccess('');
 
     try {
@@ -166,10 +225,10 @@ const Login = ({ setModeFromNavbar }) => {
         });
         setOtp('');
       } else {
-        setError(data.message || 'OTP verification failed');
+        setErrors({ general: data.message || 'OTP verification failed' });
       }
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setErrors({ general: 'Something went wrong. Please try again.' });
     }
   };
 
@@ -262,7 +321,7 @@ const Login = ({ setModeFromNavbar }) => {
             </h2>
             <div className="bg-white/5 p-6 rounded-lg border border-white/20">
               <ul className="list-disc list-inside text-white/80 space-y-2 font-semibold">
-              <li>
+                <li>
                   A single email address can be used to participate in an event only once.
                 </li>
                 <li>
@@ -308,7 +367,7 @@ const Login = ({ setModeFromNavbar }) => {
                     name={field.name}
                     value={user[field.name]}
                     onChange={handleRegisterChange}
-                    className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/30 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
+                    className={`w-full p-3 rounded-lg bg-white/10 text-white border ${errors[field.name] ? 'border-red-500' : 'border-white/30'} focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300`}
                   >
                     {field.options.map((opt) => (
                       <option key={opt.value} value={opt.value} className="bg-indigo-900 text-white">
@@ -322,7 +381,7 @@ const Login = ({ setModeFromNavbar }) => {
                     name={field.name}
                     onChange={handleRegisterChange}
                     accept="image/jpeg,image/jpg,image/png"
-                    className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/30 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition-all duration-300"
+                    className={`w-full p-3 rounded-lg bg-white/10 text-white border ${errors[field.name] ? 'border-red-500' : 'border-white/30'} file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition-all duration-300`}
                   />
                 ) : (
                   <div className="relative">
@@ -332,7 +391,8 @@ const Login = ({ setModeFromNavbar }) => {
                       value={user[field.name]}
                       onChange={handleRegisterChange}
                       placeholder={field.placeholder}
-                      className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/30 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 placeholder-white/50"
+                      maxLength={field.maxLength}
+                      className={`w-full p-3 rounded-lg bg-white/10 text-white border ${errors[field.name] ? 'border-red-500' : 'border-white/30'} focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 placeholder-white/50`}
                     />
                     {field.name === 'password' && (
                       <button
@@ -344,6 +404,9 @@ const Login = ({ setModeFromNavbar }) => {
                       </button>
                     )}
                   </div>
+                )}
+                {errors[field.name] && (
+                  <p className="text-red-400 text-sm">{errors[field.name]}</p>
                 )}
               </div>
             ))}
@@ -481,14 +544,14 @@ const Login = ({ setModeFromNavbar }) => {
             {mode === 'login' ? 'LOGIN' : mode === 'register' ? 'REGISTER' : mode === 'otp' ? 'VERIFY OTP' : 'DASHBOARD'}
           </h1>
 
-          {error && (
+          {errors.general && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               className="bg-red-600/50 text-red-100 p-3 rounded-lg mb-6 text-center border border-red-500/50"
             >
-              {error}
+              {errors.general}
             </motion.div>
           )}
           {success && (
