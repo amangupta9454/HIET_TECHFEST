@@ -299,7 +299,7 @@ const Login = ({ setModeFromNavbar }) => {
                 ],
               },
               { label: 'Password', name: 'password', type: showPassword ? 'text' : 'password', placeholder: 'Enter password' },
-              { label: 'Profile Image (Max 300KB)', name: 'image', type: 'file' },
+              { label: 'Profile Image (Max 1MB)', name: 'image', type: 'file' },
             ].map((field) => (
               <div key={field.name} className="form-group space-y-2">
                 <label className="text-white font-semibold tracking-wide">{field.label}</label>
