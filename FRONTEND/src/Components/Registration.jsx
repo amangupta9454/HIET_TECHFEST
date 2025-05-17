@@ -37,7 +37,7 @@ const Registration = () => {
             });
             const data = await response.json();
             if (response.ok) {
-                setUser((prev) => ({ ...prev, email: data.user.email }));
+                setUser((prev) => ({ ...prev, email: data.user.email, mobile:data.user.mobile}));
             } else {
                 setError(data.message || 'Failed to fetch user data');
                 localStorage.removeItem('token');
@@ -80,9 +80,8 @@ const Registration = () => {
                     'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    rollno: user.rollno,
-                    teamLeaderName: user.teamLeaderName,
-                    aadhar: user.aadhar,
+                    email: user.email,
+                    mobile:user.mobile,
                 }),
             });
 
@@ -93,7 +92,7 @@ const Registration = () => {
             }
 
             if (checkData.isRegistered) {
-                setError('This roll number, team leader name, or Aadhar number is already registered for an event');
+                setError('This mobile number, or email is already registered for an event');
                 return;
             }
         } catch (err) {
@@ -125,7 +124,7 @@ const Registration = () => {
                     teamName: "",
                     teamLeaderName: "",
                     email: user.email, // Retain email
-                    mobile: "",
+                    mobile: user.mobile,  //   Retain mobile number
                     gender: "",
                     college: "",
                     course: "",
@@ -148,13 +147,9 @@ const Registration = () => {
 
     return (
         <div className="min-h-screen relative overflow-hidden">
-            <div
-                className="absolute inset-0 bg-gradient-to-br from-[#1a1033] via-[#0d1b38] to-[#2a0a4d] bg-[length:200%_200%] animate-background"
-            ></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1033] via-[#0d1b38] to-[#2a0a4d] bg-[length:200%_200%] animate-background"></div>
             <div className="relative z-0 flex items-center justify-center p-6 min-h-screen">
-                <div
-                    className="w-full max-w-3xl bg-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/40 p-12 hover:shadow-[0_0_80px_rgba(147,51,234,0.6)] transition-all duration-700"
-                >
+                <div className="w-full max-w-3xl bg-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/40 p-12 hover:shadow-[0_0_80px_rgba(147,51,234,0.6)] transition-all duration-700">
                     <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-indigo-200 to-blue-300 text-center mb-12 tracking-widest drop-shadow-lg">
                         EVENT REGISTRATION
                     </h1>

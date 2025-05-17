@@ -213,10 +213,10 @@ const generateEmailTemplate = (userData) => {
                 <div class="rules-section">
                     <h3>Event Rules</h3>
                     <ul>
-                        <li>Arrive 15 minutes before the event starts</li>
+                        <li>Arrive 45 minutes before the event starts</li>
                         <li>No late entries allowed</li>
-                        <li>Bring valid ID for verification</li>
-                        <li>Follow the specified dress code</li>
+                        <li>Bring college ID for verification</li>
+                        <li>Follow the specified dress code, if any?</li>
                         <li>Respect all participants and organizers</li>
                     </ul>
                 </div>
