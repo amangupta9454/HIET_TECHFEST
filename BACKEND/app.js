@@ -2,6 +2,7 @@ const express = require("express");
 const { default: mongoose } = require("mongoose");
 require('dotenv').config();
 const DataRegisterModel = require("./Schema/schema.js");
+const UserModel = require("./Schema/userSchema.js");
 const app = express();
 const cors = require("cors");
 const multer = require("multer");
@@ -11,12 +12,14 @@ const fs = require("fs");
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const UserModel = require("./Schema/userSchema.js");
 const os = require('os');
 const path = require('path');
+const sharp = require('sharp');
+const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 
 // Ensure tmp directory exists
-const tmpDir = path.join(os.tmpdir(), 'uploads');
+const tmpDir = path.join(os.tmpdir(), 'Uploads');
 if (!fs.existsSync(tmpDir)) {
   fs.mkdirSync(tmpDir, { recursive: true });
 }
@@ -50,6 +53,19 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Rate Limiters
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // 5 requests per IP
+    message: 'Too many login attempts, please try again after 15 minutes'
+});
+
+const registerLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 3, // 3 requests per IP
+    message: 'Too many registration attempts, please try again after 1 hour'
+});
+
 // Generate OTP
 const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -68,7 +84,7 @@ const sendOTPEmail = async (email, otp) => {
                 <p>This OTP is valid for 10 minutes.</p>
             `
         };
-        const info = await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
         return true;
     } catch (error) {
         console.error('Error sending OTP email:', error);
@@ -222,7 +238,7 @@ const sendConfirmationEmail = async (userData) => {
             subject: `Registration Confirmation - ${userData.event}`,
             html: generateEmailTemplate(userData)
         };
-        const info = await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
         return true;
     } catch (error) {
         console.error('Error sending email:', error);
@@ -248,7 +264,11 @@ const authenticateToken = (req, res, next) => {
 // Database Connection
 const connectiontodatabase = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
+        await mongoose.connect(process.env.MONGODB_URI, {
+            maxPoolSize: 10, // Maximum number of connections in the pool
+            minPoolSize: 2,  // Minimum number of connections in the pool
+            connectTimeoutMS: 10000, // Timeout for initial connection
+        });
         console.log("YOUR DATABASE IS CONNECTED SUCCESSFULLY");   
     } catch(err) {
         console.log(err);
@@ -273,14 +293,46 @@ const upload = multer({
     limits: { fileSize: 300000 },
 });
 
+// Input Validation Middleware for User Registration
+const validateUserRegistration = [
+    body('name').trim().notEmpty().withMessage('Name is required'),
+    body('email').isEmail().normalizeEmail().withMessage('Invalid email format'),
+    body('mobile').matches(/^[6-9][0-9]{9}$/).withMessage('Invalid mobile number'),
+    body('college').trim().notEmpty().withMessage('College is required'),
+    body('branch').trim().notEmpty().withMessage('Branch is required'),
+    body('year').isIn([1, 2, 3, 4]).withMessage('Year must be 1, 2, 3, or 4'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+];
+
+// Input Validation Middleware for Event Registration
+const validateEventRegistration = [
+    body('event').trim().notEmpty().withMessage('Event is required'),
+    body('teamName').trim().notEmpty().withMessage('Team name is required'),
+    body('teamLeaderName').trim().notEmpty().withMessage('Team leader name is required'),
+    body('email').isEmail().normalizeEmail().withMessage('Invalid email format'),
+    body('mobile').matches(/^[6-9][0-9]{9}$/).withMessage('Invalid mobile number'),
+    body('gender').isIn(['male', 'female', 'other']).withMessage('Invalid gender'),
+    body('college').trim().notEmpty().withMessage('College is required'),
+    body('course').trim().notEmpty().withMessage('Course is required'),
+    body('year').isIn([1, 2, 3, 4]).withMessage('Year must be 1, 2, 3, or 4'),
+    body('rollno').trim().notEmpty().withMessage('Roll number is required'),
+    body('aadhar').matches(/^[0-9]{12}$/).withMessage('Invalid Aadhar number'),
+    body('teamSize').isInt({ min: 1, max: 4 }).withMessage('Team size must be between 1 and 4'),
+];
+
 // User Registration
-app.post('/api/user/register', upload.single('image'), async (req, res) => {
+app.post('/api/user/register', registerLimiter, upload.single('image'), validateUserRegistration, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send({ message: 'Validation failed', errors: errors.array() });
+    }
+
     const { name, email, mobile, college, branch, year, password } = req.body;
     const image = req.file;
 
     try {
-        if (!name || !email || !mobile || !college || !branch || !year || !password || !image) {
-            return res.status(400).send({ message: 'All fields are required' });
+        if (!image) {
+            return res.status(400).send({ message: 'Profile image is required' });
         }
 
         const existingUser = await UserModel.findOne({ email });
@@ -292,12 +344,22 @@ app.post('/api/user/register', upload.single('image'), async (req, res) => {
             return res.status(500).send({ message: 'Uploaded file not found' });
         }
 
-        const uploadResult = await cloudinary.uploader.upload(image.path, {
+        // Compress image
+        const compressedImagePath = path.join(tmpDir, `compressed-${image.filename}`);
+        await sharp(image.path)
+            .resize({ width: 800 })
+            .jpeg({ quality: 80 })
+            .toFile(compressedImagePath);
+
+        const uploadResult = await cloudinary.uploader.upload(compressedImagePath, {
             public_id: uuidv4() + image.originalname,
         });
 
         fs.unlink(image.path, (err) => {
-            if (err) console.log('Error deleting image file:', err);
+            if (err) console.log('Error deleting original image file:', err);
+        });
+        fs.unlink(compressedImagePath, (err) => {
+            if (err) console.log('Error deleting compressed image file:', err);
         });
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -313,7 +375,7 @@ app.post('/api/user/register', upload.single('image'), async (req, res) => {
             image: uploadResult.secure_url,
             password: hashedPassword,
             otp,
-            otpExpires: Date.now() + 10 * 60 * 1000, // 10 minutes
+            otpExpires: Date.now() + 10 * 60 * 1000,
         });
 
         await user.save();
@@ -330,14 +392,18 @@ app.post('/api/user/register', upload.single('image'), async (req, res) => {
 });
 
 // OTP Verification
-app.post('/api/user/verify-otp', async (req, res) => {
+app.post('/api/user/verify-otp', [
+    body('email').isEmail().normalizeEmail().withMessage('Invalid email format'),
+    body('otp').trim().notEmpty().withMessage('OTP is required')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send({ message: 'Validation failed', errors: errors.array() });
+    }
+
     const { email, otp } = req.body;
 
     try {
-        if (!email || !otp) {
-            return res.status(400).send({ message: 'Email and OTP are required' });
-        }
-
         const user = await UserModel.findOne({ email });
         if (!user) {
             return res.status(404).send({ message: 'User not found' });
@@ -360,14 +426,18 @@ app.post('/api/user/verify-otp', async (req, res) => {
 });
 
 // User Login
-app.post('/api/user/login', async (req, res) => {
+app.post('/api/user/login', loginLimiter, [
+    body('email').isEmail().normalizeEmail().withMessage('Invalid email format'),
+    body('password').notEmpty().withMessage('Password is required')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send({ message: 'Validation failed', errors: errors.array() });
+    }
+
     const { email, password } = req.body;
 
     try {
-        if (!email || !password) {
-            return res.status(400).send({ message: 'Email and password are required' });
-        }
-
         const user = await UserModel.findOne({ email });
         if (!user || !user.isVerified) {
             return res.status(401).send({ message: 'Invalid credentials or unverified account' });
@@ -398,11 +468,49 @@ app.get('/api/user/dashboard', authenticateToken, async (req, res) => {
     }
 });
 
+// Check Duplicate Registration
+app.post('/api/register/check', authenticateToken, [
+    body('rollno').trim().notEmpty().withMessage('Roll number is required'),
+    body('teamLeaderName').trim().notEmpty().withMessage('Team leader name is required'),
+    body('aadhar').matches(/^[0-9]{12}$/).withMessage('Invalid Aadhar number')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send({ message: 'Validation failed', errors: errors.array() });
+    }
+
+    const { rollno, teamLeaderName, aadhar } = req.body;
+
+    try {
+        const existingRegistration = await DataRegisterModel.findOne({
+            $or: [
+                { rollno },
+                { teamLeaderName },
+                { aadhar },
+            ],
+        });
+
+        if (existingRegistration) {
+            return res.status(409).send({ message: 'This roll number, team leader name, or Aadhar number is already registered', isRegistered: true });
+        }
+
+        res.status(200).send({ isRegistered: false });
+    } catch (err) {
+        console.error('Check registration error:', err);
+        res.status(500).send({ message: 'Server error' });
+    }
+});
+
 // Event Registration (Protected)
 app.post('/api/register', authenticateToken, upload.fields([
     { name: "clg_id" },
     { name: "aadharImage" }
-]), async (req, res) => {
+]), validateEventRegistration, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send({ message: 'Validation failed', errors: errors.array() });
+    }
+
     const { 
         event,
         teamName,
@@ -418,11 +526,7 @@ app.post('/api/register', authenticateToken, upload.fields([
         teamSize 
     } = req.body;
 
-    try {   
-        if (!email || !mobile || !event || !teamName || !teamLeaderName || !college || !course || !year || !aadhar || !rollno || !gender || !teamSize) {
-            return res.status(400).send({ message: "Missing required fields" });
-        }
-
+    try {
         const findStudent = await DataRegisterModel.findOne({ email, mobile });
         if (findStudent) {
             return res.status(409).send({ message: "You are already registered" });
@@ -433,7 +537,11 @@ app.post('/api/register', authenticateToken, upload.fields([
         }
 
         const uploadResultcollegeId = await cloudinary.uploader.upload(
-            req.files.clg_id[0].path, {
+            await sharp(req.files.clg_id[0].path)
+                .resize({ width: 800 })
+                .jpeg({ quality: 80 })
+                .toBuffer(),
+            {
                 public_id: uuidv4() + "" + req.files.clg_id[0].originalname,
             }
         );
@@ -443,7 +551,11 @@ app.post('/api/register', authenticateToken, upload.fields([
         }
 
         const uploadResultaadharcard = await cloudinary.uploader.upload(
-            req.files.aadharImage[0].path, {
+            await sharp(req.files.aadharImage[0].path)
+                .resize({ width: 800 })
+                .jpeg({ quality: 80 })
+                .toBuffer(),
+            {
                 public_id: uuidv4() + "" + req.files.aadharImage[0].originalname,
             }
         );
@@ -460,12 +572,11 @@ app.post('/api/register', authenticateToken, upload.fields([
             if (err) console.log("Error deleting aadhar card file:", err);
         });
 
-         // Sanitize and validate teamSize
-         const parsedTeamSize = Number(teamSize); // Use Number() for robustness
-         console.log('Parsed teamSize:', parsedTeamSize); // Debug log
-         if (isNaN(parsedTeamSize) || parsedTeamSize < 1 || parsedTeamSize > 4) {
-             return res.status(400).send({ message: "Team size must be a number between 1 and 4" });
-         }
+        const parsedTeamSize = Number(teamSize);
+        if (isNaN(parsedTeamSize) || parsedTeamSize < 1 || parsedTeamSize > 4) {
+            return res.status(400).send({ message: "Team size must be a number between 1 and 4" });
+        }
+
         const newdata = new DataRegisterModel({
             clg_id: uploadResultcollegeId.secure_url,
             registrationId: uuidv4(),
@@ -484,7 +595,6 @@ app.post('/api/register', authenticateToken, upload.fields([
             aadharImage: uploadResultaadharcard.secure_url
         });
 
-        
         const savedata = await newdata.save();
         
         if (savedata) {

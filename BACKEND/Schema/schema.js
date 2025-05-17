@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const Schema = new mongoose.Schema({
-    "clg_id": {               // ✅ Store file path
-        type: String,         
+    "clg_id": {
+        type: String,
         required: true
     },
     "registrationId": {
@@ -20,7 +20,8 @@ const Schema = new mongoose.Schema({
     },
     "teamLeaderName": {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     "email": {
         type: String,
@@ -29,7 +30,7 @@ const Schema = new mongoose.Schema({
         match: /^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/
     },
     "mobile": {
-        type: String,            // ✅ Use String for mobile
+        type: String,
         required: true,
         index: true,
         match: /^[6-9][0-9]{9}$/
@@ -54,17 +55,19 @@ const Schema = new mongoose.Schema({
     },
     "rollno": {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     "aadhar": {
         type: String,
         required: true,
-        match: /^[0-9]{12}$/
+        match: /^[0-9]{12}$/,
+        index: true
     },
     "teamSize": {
-        type: Number, // Changed to Number
+        type: Number,
         required: true,
-        min: [1, 'Team size must be at least 1'], // Numerical range validation
+        min: [1, 'Team size must be at least 1'],
         max: [4, 'Team size cannot exceed 4']
     },
     "aadharImage": {

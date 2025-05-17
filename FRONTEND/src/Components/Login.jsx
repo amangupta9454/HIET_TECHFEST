@@ -22,6 +22,7 @@ const Login = ({ setModeFromNavbar }) => {
   const [success, setSuccess] = useState('');
   const [dashboardData, setDashboardData] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // New state for loading
   const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
@@ -88,6 +89,7 @@ const Login = ({ setModeFromNavbar }) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setIsLoading(true); // Start loading
 
     try {
       const response = await fetch(`${baseUrl}/api/user/login`, {
@@ -105,6 +107,8 @@ const Login = ({ setModeFromNavbar }) => {
       }
     } catch (err) {
       setError('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -214,24 +218,37 @@ const Login = ({ setModeFromNavbar }) => {
               type="submit"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="relative px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300"
+              disabled={isLoading}
+              className={`relative px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-              <span className="relative z-0">Login</span>
-              <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{ transform: 'skewX(-20deg)' }}></span>
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 inline-block mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  <span className="relative z-0">Login</span>
+                  <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{ transform: 'skewX(-20deg)' }}></span>
+                </>
+              )}
             </motion.button>
           </div>
           <div className="text-center mt-4">
@@ -240,24 +257,22 @@ const Login = ({ setModeFromNavbar }) => {
             </button>
           </div>
           <div className="info-section mt-8">
-          <h2 className="text-2xl font-bold text-white text-center mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text ">
-            Important Information
-          </h2>
-          <div className="bg-white/5 p-6 rounded-lg border border-white/20">
-            <ul className="list-disc list-inside text-white/80 space-y-2">
-              <li>
-                When you tap on login with your registered credentials, please wait for some time as the system processes your request.
-              </li>
-              <li>
-                For event registration, please use the same email you used to register as a new user. Using a different email will prevent your dashboard details from being updated for that particular event.
-              </li>
-            </ul>
+            <h2 className="text-2xl font-bold text-white text-center mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text">
+              Important Information
+            </h2>
+            <div className="bg-white/5 p-6 rounded-lg border border-white/20">
+              <ul className="list-disc list-inside text-white/80 space-y-2">
+                <li>
+                  When you tap on login with your registered credentials, please wait for some time as the system processes your request.
+                </li>
+                <li>
+                  For event registration, please use the same email you used to register as a new user. Using a different email will prevent your dashboard details from being updated for that particular event.
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
         </form>
-        
       );
-      // USER CAN REGISTER THEMSELVE IF THEY ARE NOT REGISTERED USER
     } else if (mode === 'register') {
       return (
         <form onSubmit={handleRegisterSubmit} className="space-y-6">
@@ -265,16 +280,21 @@ const Login = ({ setModeFromNavbar }) => {
             {[
               { label: 'Name', name: 'name', type: 'text', placeholder: 'Enter name' },
               { label: 'Email', name: 'email', type: 'email', placeholder: 'Enter email' },
-              { label: 'Mobile Number', name: 'mobile', type: 'tel', placeholder: 'Enter mobile number',maxLength: 10 },
+              { label: 'Mobile Number', name: 'mobile', type: 'tel', placeholder: 'Enter mobile number', maxLength: 10 },
               { label: 'College', name: 'college', type: 'text', placeholder: 'Enter college name' },
               { label: 'Branch', name: 'branch', type: 'text', placeholder: 'Enter branch name' },
-              { label: 'Year', name: 'year', type: 'select', options: [
-                { value: '', label: 'Select year' },
-                { value: '1', label: '1' },
-                { value: '2', label: '2' },
-                { value: '3', label: '3' },
-                { value: '4', label: '4' },
-              ]},
+              {
+                label: 'Year',
+                name: 'year',
+                type: 'select',
+                options: [
+                  { value: '', label: 'Select year' },
+                  { value: '1', label: '1' },
+                  { value: '2', label: '2' },
+                  { value: '3', label: '3' },
+                  { value: '4', label: '4' },
+                ],
+              },
               { label: 'Password', name: 'password', type: showPassword ? 'text' : 'password', placeholder: 'Enter password' },
               { label: 'Profile Image (Max 300KB)', name: 'image', type: 'file' },
             ].map((field) => (
@@ -343,8 +363,6 @@ const Login = ({ setModeFromNavbar }) => {
           </div>
         </form>
       );
-
-      // WHEN USER TRY TO LOGIN AND REQUEST FOR THE OTP
     } else if (mode === 'otp') {
       return (
         <form onSubmit={handleOtpSubmit} className="space-y-6">
@@ -373,7 +391,6 @@ const Login = ({ setModeFromNavbar }) => {
           </div>
         </form>
       );
-      // USER  DASHBOARD CODE ARE PRESENT HERE
     } else if (mode === 'dashboard' && dashboardData) {
       return (
         <div className="space-y-6">
@@ -485,11 +502,7 @@ const Login = ({ setModeFromNavbar }) => {
           {renderForm()}
         </motion.div>
       </div>
-      
     </div>
-
-
-
   );
 };
 
