@@ -5,7 +5,7 @@
 
   <p style="font-size: 1.2em; text-align: center;">
     A modern and fully responsive MERN stack web application built for <strong>HIET College's Crossroads Technical Fest</strong>.<br />
-    <a href="https://crossroadhiet.netlify.app/" target="_blank" style="color: #3b82f6;">🌐 Live Project Link</a>
+    <a href="https://crossroad2025.netlify.app/" target="_blank" style="color: #3b82f6;">🌐 Live Project Link</a>
   </p>
 
   <hr style="border: none; border-top: 2px solid #ddd;" />
@@ -43,9 +43,9 @@ event/
     ├── src/
         └── assets/
     │   └── Components/
-    │       ├── Home.js
+    │       ├── Home.jsx
     │       ├── Event.jsx
-    │       ├── EventDetails.jsx
+    │       ├── Login.jsx.jsx
     │       ├── Schedule.jsx
     │       ├── Registration.jsx
     │       └── Contact.jsx
@@ -55,9 +55,9 @@ event/
 
   <h2 style="color: #1e3a8a;">⚙️ Technologies Used</h2>
   <ul>
-    <li><strong>Frontend:</strong> React.js, Vite, Tailwind CSS, GSAP, AOS, Framer Motion</li>
+    <li><strong>Frontend:</strong> React.js, Vite, Tailwind CSS, GSAP, Framer Motion</li>
     <li><strong>Backend:</strong> Node.js, Express.js, MongoDB, Multer, Cloudinary, Nodemailer</li>
-    <li><strong>Authentication:</strong> Admin login for dashboard access</li>
+    <li><strong>Authentication:</strong> User login for dashboard access</li>
     <li><strong>Hosting:</strong> Netlify (Frontend), Render (Backend)</li>
   </ul>
 
@@ -79,10 +79,7 @@ event/
       <tr><td>react-icons</td><td>^5.5.0</td></tr>
       <tr><td>react-hook-form</td><td>^7.55.0</td></tr>
       <tr><td>framer-motion</td><td>^12.6.3</td></tr>
-      <tr><td>react-toastify</td><td>^11.0.5</td></tr>
       <tr><td>gsap</td><td>^3.12.7</td></tr>
-      <tr><td>aos</td><td>^2.3.4</td></tr>
-      <tr><td>three</td><td>^0.175.0</td></tr>
       <tr><td>react-responsive-carousel</td><td>^3.2.23</td></tr>
     </tbody>
   </table>
