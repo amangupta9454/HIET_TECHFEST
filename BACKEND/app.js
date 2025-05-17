@@ -63,8 +63,8 @@ const loginLimiter = rateLimit({
 });
 
 const registerLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, // 1 hour
-    max: 3, // 3 requests per IP
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // 3 requests per IP
     message: 'Too many registration attempts, please try again after 1 hour'
 });
 
@@ -292,7 +292,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 300000 },
+    limits: { fileSize: 1000000 }, // 1MB limit
 });
 
 // Input Validation Middleware for User Registration
@@ -500,7 +500,7 @@ app.post('/api/register', authenticateToken, upload.fields([
 ]), validateEventRegistration, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).send({ message: 'Validation failed', errors: errors.array() });
+        return res.status(400).send({ message: 'Please upload image below 1mb', errors: errors.array() });
     }
 
     const { 
