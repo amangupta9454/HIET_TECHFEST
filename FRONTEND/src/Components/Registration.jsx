@@ -367,7 +367,7 @@ const Registration = () => {
         aadharImage: null,
         registrationId: "",
     });
-    const [error, setError] = useState('');
+    const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState('');
     const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -388,56 +388,102 @@ const Registration = () => {
             if (response.ok) {
                 setUser((prev) => ({ ...prev, email: data.user.email, mobile: data.user.mobile }));
             } else {
-                setError(data.message || 'Failed to fetch user data');
+                setErrors({ general: data.message || 'Failed to fetch user data' });
                 localStorage.removeItem('token');
             }
         } catch (err) {
-            setError('Server error. Please try again.');
+            setErrors({ general: 'Server error. Please try again.' });
         }
+    };
+
+    const validateField = (name, value) => {
+        let error = '';
+        const requiredFields = [
+            'event', 'teamName', 'teamLeaderName', 'email', 'mobile', 'gender',
+            'college', 'course', 'year', 'rollno', 'aadhar', 'teamSize'
+        ];
+
+        if (requiredFields.includes(name) && !value) {
+            error = `${name.charAt(0).toUpperCase() + name.slice(1).replace(/([A-Z])/g, ' $1').trim()} is required`;
+        } else if (name === 'aadhar' && value && !/^\d{12}$/.test(value)) {
+            error = 'Aadhar number must be exactly 12 digits';
+        } else if (name === 'teamSize' && value) {
+            const num = parseInt(value);
+            if (isNaN(num) || num < 1 || num > 4) {
+                error = 'Team size must be between 1 and 4';
+            }
+        } else if (name === 'clg_id' && value && value.size > 1000000) {
+            error = 'College ID image must be less than 1MB';
+        } else if (name === 'aadharImage' && value && value.size > 1000000) {
+            error = 'Aadhar image must be less than 1MB';
+        } else if (name === 'mobile' && value && !/^[6-9][0-9]{9}$/.test(value)) {
+            error = 'Mobile number must be a valid 10-digit number starting with 6-9';
+        } else if (name === 'email' && value && !/^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(value)) {
+            error = 'Invalid email format';
+        }
+
+        return error;
     };
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
+        const newValue = files ? files[0] : value;
+
+        // Update user state
         setUser((prev) => ({
             ...prev,
-            [name]: files ? files[0] : value,
+            [name]: newValue,
         }));
+
+        // Validate the changed field
+        const error = validateField(name, newValue);
+        setErrors((prev) => ({
+            ...prev,
+            [name]: error,
+            general: prev.general && !error ? '' : prev.general,
+        }));
+    };
+
+    const validateForm = () => {
+        const newErrors = {};
+        Object.keys(user).forEach((key) => {
+            if (key !== 'registrationId') {
+                const error = validateField(key, user[key]);
+                if (error) {
+                    newErrors[key] = error;
+                }
+            }
+        });
+
+        // Additional check for required file fields
+        if (!user.clg_id) {
+            newErrors.clg_id = 'College ID is required';
+        }
+        if (!user.aadharImage) {
+            newErrors.aadharImage = 'Aadhar image is required';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setErrors({ general: '' });
         setSuccess('');
 
-        // Client-side validation
-        if (!user.event || !user.teamName || !user.teamLeaderName || !user.email || !user.mobile || !user.gender || !user.college || !user.course || !user.year || !user.rollno || !user.aadhar || !user.teamSize || !user.clg_id || !user.aadharImage) {
-            setError('Please fill all required fields');
-            return;
-        }
-
-        if (!/^\d{12}$/.test(user.aadhar)) {
-            setError('Aadhar number must be exactly 12 digits');
-            return;
-        }
-
-        if (user.teamSize < 1 || user.teamSize > 4) {
-            setError('Team size must be between 1 and 4');
-            return;
-        }
-
-        if (user.clg_id && user.clg_id.size > 1000000) {
-            setError('College ID image must be less than 1MB');
-            return;
-        }
-
-        if (user.aadharImage && user.aadharImage.size > 1000000) {
-            setError('Aadhar image must be less than 1MB');
+        // Validate all fields
+        if (!validateForm()) {
+            setErrors((prev) => ({
+                ...prev,
+                general: 'Please correct the errors in the form',
+            }));
             return;
         }
 
         const token = localStorage.getItem('token');
         if (!token) {
-            setError('You must be logged in to register');
+            setErrors({ general: 'You must be logged in to register' });
             return;
         }
 
@@ -458,16 +504,16 @@ const Registration = () => {
 
             const checkData = await checkResponse.json();
             if (!checkResponse.ok) {
-                setError(checkData.message || checkData.errors?.map(e => e.msg).join(', ') || 'Registration check failed');
+                setErrors({ general: checkData.message || checkData.errors?.map(e => e.msg).join(', ') || 'Registration check failed' });
                 return;
             }
 
             if (checkData.isRegistered) {
-                setError('This roll number, team leader name, or Aadhar number is already registered for an event');
+                setErrors({ general: 'This roll number, team leader name, or Aadhar number is already registered for an event' });
                 return;
             }
         } catch (err) {
-            setError('Error checking registration status. Please try again.');
+            setErrors({ general: 'Error checking registration status. Please try again.' });
             return;
         }
 
@@ -507,11 +553,12 @@ const Registration = () => {
                     aadharImage: null,
                     registrationId: "",
                 });
+                setErrors({});
             } else {
-                setError(data.message || data.errors?.map(e => e.msg).join(', ') || 'Registration failed');
+                setErrors({ general: data.message || data.errors?.map(e => e.msg).join(', ') || 'Registration failed' });
             }
         } catch (err) {
-            setError('Something went wrong. Please try again.');
+            setErrors({ general: 'Something went wrong. Please try again.' });
             console.error('Fetch error:', err);
         }
     };
@@ -525,11 +572,11 @@ const Registration = () => {
                         EVENT REGISTRATION
                     </h1>
 
-                    {error && (
+                    {errors.general && (
                         <div
                             className="bg-red-700/40 text-red-100 p-5 rounded-2xl mb-8 text-center border border-red-600/70 shadow-inner"
                         >
-                            {error}
+                            {errors.general}
                         </div>
                     )}
                     {success && (
@@ -642,7 +689,7 @@ const Registration = () => {
                                             name={field.name}
                                             value={user[field.name]}
                                             onChange={handleChange}
-                                            className="w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border border-white/50 focus:ring-4 focus:ring-purple-600/60 focus:border-purple-500 hover:bg-white/40 transition-all duration-300 shadow-lg"
+                                            className={`w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border ${errors[field.name] ? 'border-red-500' : 'border-white/50'} focus:ring-4 focus:ring-purple-600/60 focus:border-purple-500 hover:bg-white/40 transition-all duration-300 shadow-lg`}
                                         >
                                             {field.options.map((opt) => (
                                                 <option key={opt.value} value={opt.value} className="bg-indigo-900 text-white">
@@ -660,8 +707,11 @@ const Registration = () => {
                                             min={field.min}
                                             max={field.max}
                                             disabled={field.disabled}
-                                            className="w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border border-white/50 focus:ring-4 focus:ring-purple-600/60 focus:border-purple-500 hover:bg-white/40 transition-all duration-300 shadow-lg disabled:bg-gray-600/50 disabled:cursor-not-allowed"
+                                            className={`w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border ${errors[field.name] ? 'border-red-500' : 'border-white/50'} focus:ring-4 focus:ring-purple-600/60 focus:border-purple-500 hover:bg-white/40 transition-all duration-300 shadow-lg disabled:bg-gray-600/50 disabled:cursor-not-allowed`}
                                         />
+                                    )}
+                                    {errors[field.name] && (
+                                        <p className="text-red-400 text-sm mt-1">{errors[field.name]}</p>
                                     )}
                                 </div>
                             ))}
@@ -679,8 +729,11 @@ const Registration = () => {
                                         name={field.name}
                                         onChange={handleChange}
                                         accept="image/jpeg,image/jpg,image/png,application/pdf"
-                                        className="w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border border-white/50 file:mr-8 file:py-4 file:px-8 file:rounded-2xl file:border-0 file:bg-gradient-to-r file:from-purple-700 file:to-indigo-700 file:text-white hover:file:bg-gradient-to-r hover:file:from-purple-800 hover:file:to-indigo-800 transition-all duration-300 shadow-lg"
+                                        className={`w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border ${errors[field.name] ? 'border-red-500' : 'border-white/50'} file:mr-8 file:py-4 file:px-8 file:rounded-2xl file:border-0 file:bg-gradient-to-r file:from-purple-700 file:to-indigo-700 file:text-white hover:file:bg-gradient-to-r hover:file:from-purple-800 hover:file:to-indigo-800 transition-all duration-300 shadow-lg`}
                                     />
+                                    {errors[field.name] && (
+                                        <p className="text-red-400 text-sm mt-1">{errors[field.name]}</p>
+                                    )}
                                 </div>
                             ))}
                         </div>
