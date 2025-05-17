@@ -14,7 +14,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const os = require('os');
 const path = require('path');
-const sharp = require('sharp');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 
@@ -344,22 +343,12 @@ app.post('/api/user/register', registerLimiter, upload.single('image'), validate
             return res.status(500).send({ message: 'Uploaded file not found' });
         }
 
-        // Compress image
-        const compressedImagePath = path.join(tmpDir, `compressed-${image.filename}`);
-        await sharp(image.path)
-            .resize({ width: 800 })
-            .jpeg({ quality: 80 })
-            .toFile(compressedImagePath);
-
-        const uploadResult = await cloudinary.uploader.upload(compressedImagePath, {
+        const uploadResult = await cloudinary.uploader.upload(image.path, {
             public_id: uuidv4() + image.originalname,
         });
 
         fs.unlink(image.path, (err) => {
-            if (err) console.log('Error deleting original image file:', err);
-        });
-        fs.unlink(compressedImagePath, (err) => {
-            if (err) console.log('Error deleting compressed image file:', err);
+            if (err) console.log('Error deleting image file:', err);
         });
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -537,10 +526,7 @@ app.post('/api/register', authenticateToken, upload.fields([
         }
 
         const uploadResultcollegeId = await cloudinary.uploader.upload(
-            await sharp(req.files.clg_id[0].path)
-                .resize({ width: 800 })
-                .jpeg({ quality: 80 })
-                .toBuffer(),
+            req.files.clg_id[0].path,
             {
                 public_id: uuidv4() + "" + req.files.clg_id[0].originalname,
             }
@@ -551,10 +537,7 @@ app.post('/api/register', authenticateToken, upload.fields([
         }
 
         const uploadResultaadharcard = await cloudinary.uploader.upload(
-            await sharp(req.files.aadharImage[0].path)
-                .resize({ width: 800 })
-                .jpeg({ quality: 80 })
-                .toBuffer(),
+            req.files.aadharImage[0].path,
             {
                 public_id: uuidv4() + "" + req.files.aadharImage[0].originalname,
             }
