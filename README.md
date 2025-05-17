@@ -45,7 +45,7 @@ event/
     │   └── Components/
     │       ├── Home.jsx
     │       ├── Event.jsx
-    │       ├── Login.jsx.jsx
+    │       ├── Login.jsx
     │       ├── Schedule.jsx
     │       ├── Registration.jsx
     │       └── Contact.jsx
