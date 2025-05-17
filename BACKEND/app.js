@@ -17,6 +17,9 @@ const path = require('path');
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 
+// Enable trust proxy to handle X-Forwarded-For header from Render's load balancer
+app.set('trust proxy', 1);
+
 // Ensure tmp directory exists
 const tmpDir = path.join(os.tmpdir(), 'Uploads');
 if (!fs.existsSync(tmpDir)) {
@@ -213,10 +216,10 @@ const generateEmailTemplate = (userData) => {
                 <div class="rules-section">
                     <h3>Event Rules</h3>
                     <ul>
-                        <li>Arrive 45 minutes before the event starts</li>
+                        <li>Arrive 15 minutes before the event starts</li>
                         <li>No late entries allowed</li>
-                        <li>Bring college ID for verification</li>
-                        <li>Follow the specified dress code, if any?</li>
+                        <li>Bring valid ID for verification</li>
+                        <li>Follow the specified dress code</li>
                         <li>Respect all participants and organizers</li>
                     </ul>
                 </div>
