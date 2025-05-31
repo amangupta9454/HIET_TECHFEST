@@ -167,12 +167,14 @@ const Login = ({ setModeFromNavbar }) => {
     e.preventDefault();
     setErrors({ general: '' });
     setSuccess('');
+    setIsLoading(true);
 
     if (!validateRegisterForm()) {
       setErrors((prev) => ({
         ...prev,
         general: 'Please correct the errors in the form',
       }));
+      setIsLoading(false);
       return;
     }
 
@@ -195,6 +197,8 @@ const Login = ({ setModeFromNavbar }) => {
       }
     } catch (err) {
       setErrors({ general: 'Something went wrong. Please try again.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -202,6 +206,7 @@ const Login = ({ setModeFromNavbar }) => {
     e.preventDefault();
     setErrors({ general: '' });
     setSuccess('');
+    setIsLoading(true);
 
     try {
       const response = await fetch(`${baseUrl}/api/user/verify-otp`, {
@@ -229,6 +234,8 @@ const Login = ({ setModeFromNavbar }) => {
       }
     } catch (err) {
       setErrors({ general: 'Something went wrong. Please try again.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -243,12 +250,12 @@ const Login = ({ setModeFromNavbar }) => {
     if (mode === 'login') {
       return (
         <form onSubmit={handleLoginSubmit} className="space-y-6">
-          <div className="form-section grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-4">
             {[
               { label: 'Email', name: 'email', type: 'email', placeholder: 'Enter email' },
               { label: 'Password', name: 'password', type: showPassword ? 'text' : 'password', placeholder: 'Enter password' },
             ].map((field) => (
-              <div key={field.name} className="form-group space-y-2">
+              <div key={field.name} className="space-y-2">
                 <label className="text-white font-semibold tracking-wide">{field.label}</label>
                 <div className="relative">
                   <input
@@ -263,7 +270,7 @@ const Login = ({ setModeFromNavbar }) => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white"
                     >
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
@@ -282,16 +289,15 @@ const Login = ({ setModeFromNavbar }) => {
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                   <span>Loading...</span>
                 </div>
               ) : (
                 <>
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5 inline-block mr-2"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -305,7 +311,7 @@ const Login = ({ setModeFromNavbar }) => {
                     />
                   </svg>
                   <span className="relative z-0">Login</span>
-                  <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{ transform: 'skewX(-20deg)' }}></span>
+                  <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-[20deg]"></span>
                 </>
               )}
             </motion.button>
@@ -315,21 +321,15 @@ const Login = ({ setModeFromNavbar }) => {
               Not registered? Register here
             </button>
           </div>
-          <div className="info-section mt-8">
+          <div className="mt-8">
             <h2 className="text-2xl font-bold text-white text-center mb-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text">
               Important Information
             </h2>
             <div className="bg-white/5 p-6 rounded-lg border border-white/20">
               <ul className="list-disc list-inside text-white/80 space-y-2 font-semibold">
-                <li>
-                  A single email address can be used to participate in an event only once.
-                </li>
-                <li>
-                  When you tap on login with your registered credentials, please wait for some time as the system processes your request.
-                </li>
-                <li>
-                  For event registration, please use the same email you used to register as a new user. Using a different email will prevent your dashboard details from being updated for that particular event.
-                </li>
+                <li>A single email address can be used to participate in an event only once.</li>
+                <li>When you tap on login with your registered credentials, please wait for some time as the system processes your request.</li>
+                <li>For event registration, please use the same email you used to register as a new user. Using a different email will prevent your dashboard details from being updated for that particular event.</li>
               </ul>
             </div>
           </div>
@@ -338,7 +338,7 @@ const Login = ({ setModeFromNavbar }) => {
     } else if (mode === 'register') {
       return (
         <form onSubmit={handleRegisterSubmit} className="space-y-6">
-          <div className="form-section grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-4">
             {[
               { label: 'Name', name: 'name', type: 'text', placeholder: 'Enter name' },
               { label: 'Email', name: 'email', type: 'email', placeholder: 'Enter email' },
@@ -360,7 +360,7 @@ const Login = ({ setModeFromNavbar }) => {
               { label: 'Password', name: 'password', type: showPassword ? 'text' : 'password', placeholder: 'Enter password' },
               { label: 'Profile Image (Max 1MB)', name: 'image', type: 'file' },
             ].map((field) => (
-              <div key={field.name} className="form-group space-y-2">
+              <div key={field.name} className="space-y-2">
                 <label className="text-white font-semibold tracking-wide">{field.label}</label>
                 {field.type === 'select' ? (
                   <select
@@ -398,7 +398,7 @@ const Login = ({ setModeFromNavbar }) => {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white"
                       >
                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                       </button>
@@ -416,10 +416,23 @@ const Login = ({ setModeFromNavbar }) => {
               type="submit"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="relative px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300"
+              disabled={isLoading}
+              className={`relative px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <span className="relative z-0">Register</span>
-              <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{ transform: 'skewX(-20deg)' }}></span>
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <>
+                  <span className="relative z-0">Register</span>
+                  <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-[20deg]"></span>
+                </>
+              )}
             </motion.button>
           </div>
           <div className="text-center mt-4">
@@ -432,8 +445,8 @@ const Login = ({ setModeFromNavbar }) => {
     } else if (mode === 'otp') {
       return (
         <form onSubmit={handleOtpSubmit} className="space-y-6">
-          <div className="form-section grid grid-cols-1 gap-6">
-            <div className="form-group space-y-2">
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-2">
               <label className="text-white font-semibold tracking-wide">Enter OTP</label>
               <input
                 type="text"
@@ -449,10 +462,23 @@ const Login = ({ setModeFromNavbar }) => {
               type="submit"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="relative px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300"
+              disabled={isLoading}
+              className={`relative px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <span className="relative z-0">Verify OTP</span>
-              <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{ transform: 'skewX(-20deg)' }}></span>
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm25.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <>
+                  <span className="relative z-0">Verify OTP</span>
+                  <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-[20deg]"></span>
+                </>
+              )}
             </motion.button>
           </div>
         </form>
@@ -521,7 +547,7 @@ const Login = ({ setModeFromNavbar }) => {
               className="relative px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-300"
             >
               <span className="relative z-0">Logout</span>
-              <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{ transform: 'skewX(-20deg)' }}></span>
+              <span className="button-shine absolute top-0 left-[-100%] w-1/3 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-[20deg]"></span>
             </motion.button>
           </div>
         </div>
@@ -532,7 +558,7 @@ const Login = ({ setModeFromNavbar }) => {
 
   return (
     <div className="min-h-screen relative overflow-hidden pt-16">
-      <div className="background-overlay absolute inset-0" style={{ background: 'linear-gradient(45deg, #1a1033, #0d1b38, #2a0a4d, #1a1033)', backgroundSize: '200% 200%' }}></div>
+      <div className="background-overlay absolute inset-0 bg-gradient-to-r from-[#1a1033] via-[#0d1b38] to-[#2a0a4d] bg-[length:200%_200%]" />
       <div className="relative z-0 flex items-center justify-center p-4 sm:p-6 min-h-screen">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
