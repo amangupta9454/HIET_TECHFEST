@@ -1,4 +1,4 @@
-// new 
+// new
 import { useState, useEffect } from 'react';
 
 const Registration = () => {
@@ -21,6 +21,7 @@ const Registration = () => {
     });
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);   // <-- NEW
     const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
@@ -43,7 +44,7 @@ const Registration = () => {
                 setErrors({ general: data.message || 'Failed to fetch user data' });
                 localStorage.removeItem('token');
             }
-        } catch (err) {
+        } catch  {
             setErrors({ general: 'Server error. Please try again.' });
         }
     };
@@ -123,6 +124,7 @@ const Registration = () => {
         e.preventDefault();
         setErrors({ general: '' });
         setSuccess('');
+        setLoading(true);   // <-- NEW
 
         // Validate all fields
         if (!validateForm()) {
@@ -130,12 +132,14 @@ const Registration = () => {
                 ...prev,
                 general: 'Please correct the errors in the form',
             }));
+            setLoading(false);   // <-- NEW
             return;
         }
 
         const token = localStorage.getItem('token');
         if (!token) {
             setErrors({ general: 'You must be logged in to register' });
+            setLoading(false);   // <-- NEW
             return;
         }
 
@@ -157,15 +161,18 @@ const Registration = () => {
             const checkData = await checkResponse.json();
             if (!checkResponse.ok) {
                 setErrors({ general: checkData.message || checkData.errors?.map(e => e.msg).join(', ') || 'Registration check failed' });
+                setLoading(false);   // <-- NEW
                 return;
             }
 
             if (checkData.isRegistered) {
                 setErrors({ general: 'This roll number, team leader name, or Aadhar number is already registered for an event' });
+                setLoading(false);   // <-- NEW
                 return;
             }
-        } catch (err) {
+        } catch  {
             setErrors({ general: 'Error checking registration status. Please try again.' });
+            setLoading(false);   // <-- NEW
             return;
         }
 
@@ -212,6 +219,8 @@ const Registration = () => {
         } catch (err) {
             setErrors({ general: 'Something went wrong. Please try again.' });
             console.error('Fetch error:', err);
+        } finally {
+            setLoading(false);   // <-- NEW
         }
     };
 
@@ -393,9 +402,32 @@ const Registration = () => {
                         <div className="text-center">
                             <button
                                 type="submit"
-                                className="px-12 py-5 bg-gradient-to-r from-purple-700 to-indigo-700 text-white font-bold rounded-2xl shadow-lg hover:from-purple-800 hover:to-indigo-800 hover:shadow-[0_0_25px_rgba(147,51,234,0.8)] transition-all duration-300"
+                                disabled={loading}
+                                className="px-12 py-5 bg-gradient-to-r from-purple-700 to-indigo-700 text-white font-bold rounded-2xl shadow-lg hover:from-purple-800 hover:to-indigo-800 hover:shadow-[0_0_25px_rgba(147,51,234,0.8)] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center mx-auto"
                             >
-                                Register Now
+                                {loading ? (
+                                    <svg
+                                        className="animate-spin h-6 w-6 mr-2 text-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                    </svg>
+                                ) : null}
+                                {loading ? 'Registering...' : 'Register Now'}
                             </button>
                         </div>
                     </form>

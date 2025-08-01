@@ -69,31 +69,87 @@ const registerLimiter = rateLimit({
 });
 
 // Generate OTP
-const generateOTP = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-};
+const generateOTP = () =>
+  Math.floor(100_000 + Math.random() * 900_000).toString();
 
-// Send OTP Email
+// ----------------------------------------------------
+//  Beautiful HTML Email for OTP
+// ----------------------------------------------------
 const sendOTPEmail = async (email, otp) => {
-    try {
-        const mailOptions = {
-            from: `"Event Registration" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: 'OTP for Registration',
-            html: `
-                <h2>Your OTP</h2>
-                <p>Your OTP for registration is: <strong>${otp}</strong></p>
-                <p>This OTP is valid for 10 minutes.</p>
-            `
-        };
-        await transporter.sendMail(mailOptions);
-        return true;
-    } catch (error) {
-        console.error('Error sending OTP email:', error);
-        return false;
-    }
+  const mailHtml = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to CROSSROADS!</title>
+    <style>
+      body{margin:0;padding:0;font-family:'Segoe UI',Tahoma,sans-serif;background:#f4f7fb;}
+      .wrapper{background:#f4f7fb;padding:40px 20px;}
+      .card{max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.08);}
+      .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:40px 30px;text-align:center;}
+      .header h1{margin:0;font-size:28px;font-weight:700;letter-spacing:.5px;}
+      .body{padding:30px;color:#333;line-height:1.6;}
+      .otp-box{background:#f1f5ff;border:1px solid #d0d9ff;border-radius:8px;padding:20px;text-align:center;margin:25px 0;}
+      .otp-code{font-size:32px;font-weight:700;color:#667eea;letter-spacing:6px;font-family:monospace;}
+      .note{font-size:14px;color:#555;margin-top:25px;}
+      .footer{background:#f9fafb;padding:20px 30px;font-size:12px;color:#888;text-align:center;border-top:1px solid #e5e7eb;}
+      .btn{display:inline-block;background:#667eea;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;margin-top:20px;}
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="card">
+        <!-- Header -->
+        <div class="header">
+          <h1>Welcome to CROSSROADS!</h1>
+          <p style="margin:8px 0 0;font-size:16px;opacity:.9;">Let’s get you registered in seconds.</p>
+        </div>
+
+        <!-- Body -->
+        <div class="body">
+          <p>Hi there 👋,</p>
+          <p>To complete your registration, please use the One-Time Password below. This keeps your account safe and verifies it’s really you.</p>
+
+          <div class="otp-box">
+            <div>Your 6-digit OTP</div>
+            <div class="otp-code">${otp}</div>
+          </div>
+
+          <p class="note">
+            ⚡ This code expires in <strong>10 minutes</strong>.<br>
+            🔒 Never share this OTP with anyone; our team will never ask for it.
+          </p>
+
+          <p>If you didn’t request this, simply ignore this email.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          Need help? Reply to this email or visit our <a href="https://your-support-link.com" style="color:#667eea;text-decoration:none;">Support Center</a>.<br>
+          © ${new Date().getFullYear()} CROSSROADS. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `"CROSSROADS" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "🔐 Complete Your CROSSROADS Registration",
+      html: mailHtml,
+    });
+    return true;
+  } catch (err) {
+    console.error("❌ Failed to send OTP email:", err);
+    return false;
+  }
 };
 
+module.exports = { generateOTP, sendOTPEmail };
 // Send Confirmation Email
 const generateEmailTemplate = (userData) => {
     return `

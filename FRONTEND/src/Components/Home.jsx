@@ -247,12 +247,12 @@ const Home = () => {
       </div>
     ))}
   </div>
+{/* 
+  <div className="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-transparent to-transparent animate-pulse-slow"></div> */}
 
-  <div className="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-transparent to-transparent animate-pulse-slow"></div>
-
-  <h2 className="text-5xl md:text-7xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 mb-20 relative z-0 animate-neon-glow tracking-tighter">
+  <h2 className="text-5xl md:text-7xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 mb-20 relative z-0  tracking-tighter">
     Meet Our Tech Titans
-    <span className="block h-1 w-32 mx-auto mt-3 bg-gradient-to-r from-cyan-700 to-purple-700 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.7)]"></span>
+    {/* <span className="block h-1 w-32 mx-auto mt-3 bg-gradient-to-r from-cyan-700 to-purple-700 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.7)]"></span> */}
   </h2>
 
   <div className="relative w-full max-w-7xl mx-auto px-6 z-0">
@@ -260,9 +260,9 @@ const Home = () => {
       {teamMembers.map((member) => (
         <div key={member.id} className="p-6">
           <div className="relative group bg-gradient-to-br from-[#1a1a2e]/70 via-[#2a2a4e]/50 to-[#3a3a6e]/30 rounded-2xl p-8 text-center backdrop-blur-xl border border-cyan-400/20 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] hover:-rotate-2">
-            <div className="absolute inset-0 bg-gradient-radial from-cyan-400/20 to-transparent blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
+            {/* <div className="absolute inset-0 bg-gradient-radial from-cyan-400/20 to-transparent blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div> */}
 
-            <div className="relative w-44 h-44 mx-auto rounded-full border-4 border-cyan-300/50 overflow-hidden transition-all duration-700 group-hover:-translate-y-3 group-hover:scale-110 shadow-[0_0_25px_rgba(34,211,238,0.5)]">
+            <div className="relative w-44 h-44 mx-auto rounded-full border-4 border-cyan-300/50 overflow-hidden transition-all duration-700 group-hover:-translate-y-3 group-hover:scale-110 ">
               <img src={member.image} alt={member.name} className="object-cover w-full h-full" />
             </div>
 
@@ -275,9 +275,9 @@ const Home = () => {
 
             <a
               href={member.linkedin}
-              className="relative inline-block mt-6 px-10 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(34,211,238,0.8)] overflow-hidden"
+              className="relative inline-block mt-6 px-10 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-300 hover:scale-110 overflow-hidden"
             >
-              <span className="relative z-10">WhatsApp</span>
+              <span className="relative z-0">WhatsApp</span>
               <span className="absolute inset-0 bg-cyan-300/30 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center rounded-full"></span>
             </a>
           </div>
@@ -286,7 +286,7 @@ const Home = () => {
     </Slider>
   </div>
 
-  <style jsx>{`
+  <style>{`
     @keyframes neon-twinkle {
       0%, 100% { opacity: 0.2; transform: scale(0.6); }
       50% { opacity: 0.7; transform: scale(1.1); }
