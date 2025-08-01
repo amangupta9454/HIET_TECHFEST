@@ -5,7 +5,7 @@
 
   <p style="font-size: 1.2em; text-align: center;">
     A modern and fully responsive MERN stack web application built for <strong>HIET College's Crossroads Technical Fest</strong>.<br />
-    <a href="https://crossroad2025.netlify.app/" target="_blank" style="color: #3b82f6;">🌐 Live Project Link</a>
+    <a href="https://hiet-crossroad.netlify.app/" target="_blank" style="color: #3b82f6;">🌐 Live Project Link</a>
   </p>
 
   <hr style="border: none; border-top: 2px solid #ddd;" />
@@ -46,6 +46,9 @@ event/
     │       ├── Home.jsx
     │       ├── Event.jsx
     │       ├── Login.jsx
+    │       ├── Register.jsx
+    │       ├── Dashboard.jsx
+    │       ├── Footer.jsx
     │       ├── Schedule.jsx
     │       ├── Registration.jsx
     │       └── Contact.jsx
@@ -112,6 +115,7 @@ event/
     </li>
     <li>Install dependencies:
       <pre><code>cd event/FRONTEND
+```bash
 npm install
 cd ../BACKEND
 npm install</code></pre>
@@ -126,6 +130,7 @@ npm install</code></pre>
       <pre><code>npm run dev</code></pre>
     </li>
   </ol>
+```
 
   <h2 style="color: #1e3a8a;">👥 Contributors</h2>
   <ul>

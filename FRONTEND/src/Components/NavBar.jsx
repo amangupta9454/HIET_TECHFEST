@@ -42,7 +42,7 @@ const NavBar = () => {
           { path: "/", label: "Home" },
           { path: "/event", label: "Events" },
           { path: "/schedule", label: "Schedule" },
-          { path: "/registration", label: "Registration" },
+          { path: "/registration", label: "Event Registration" },
           ...(isAuthenticated ? [{ path: "/dashboard", label: "Dashboard" }] : []),
           { path: "/contact", label: "Contact" },
           ...(isAuthenticated
