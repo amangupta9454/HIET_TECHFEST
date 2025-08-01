@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import logo from "/logo.jpeg";
-import hietlogo from "/hietlogo.png";
+
 import { FaYoutube, FaWhatsapp, FaLinkedin, FaInstagram, FaEnvelope, FaArrowUp } from 'react-icons/fa';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -21,7 +21,6 @@ const Home = () => {
   const [countdown, setCountdown] = useState(""); // State for countdown timer
   const title = "Crossroad 2025";
   const aboutSectionRef = useRef(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Countdown timer effect
   useEffect(() => {
@@ -311,7 +310,7 @@ const Home = () => {
   `}</style>
 </section>
 
-      <footer className="relative bg-gray-900 text-white py-12 px-6 sm:px-10 lg:px-20 border-t-[5px] border-cyan-500 shadow-2xl">
+      {/* <footer className="relative bg-gray-900 text-white py-12 px-6 sm:px-10 lg:px-20 border-t-[5px] border-cyan-500 shadow-2xl">
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 text-center sm:text-left">
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-cyan-400 border-b-2 border-cyan-600 pb-2 uppercase tracking-wider animate-fadeIn">
@@ -336,12 +335,25 @@ const Home = () => {
             <h2 className="text-lg font-semibold text-cyan-400 border-b-2 border-cyan-600 pb-2 uppercase tracking-wider animate-fadeIn">
               Quick Links
             </h2>
-            <div className="flex flex-col items-center sm:items-start gap-2">
-              {['Home', 'Events', 'Schedule', 'Registration', 'Contact'].map((link) => (
-                <a key={link} href={`/${link.toLowerCase()}`} className="text-gray-400 text-sm sm:text-base transition-all duration-300 ease-in-out hover:translate-x-1 hover:underline hover:text-cyan-600">
-                  {link}
-                </a>
-              ))}
+           <div className="flex flex-col items-center sm:items-start gap-2">
+            <Link to="/" className="text-gray-400 text-sm sm:text-base transition-all duration-300 ease-in-out hover:translate-x-1 hover:underline hover:text-cyan-600">
+              Home
+            </Link>
+            <Link to="/event" className="text-gray-400 text-sm sm:text-base transition-all duration-300 ease-in-out hover:translate-x-1 hover:underline hover:text-cyan-600">
+              Event
+            </Link>
+            <Link to="/schedule" className="text-gray-400 text-sm sm:text-base transition-all duration-300 ease-in-out hover:translate-x-1 hover:underline hover:text-cyan-600">
+              Schedule
+            </Link>
+            <Link to="/registration" className="text-gray-400 text-sm sm:text-base transition-all duration-300 ease-in-out hover:translate-x-1 hover:underline hover:text-cyan-600">
+              Registration
+            </Link>
+            <Link to="/contact" className="text-gray-400 text-sm sm:text-base transition-all duration-300 ease-in-out hover:translate-x-1 hover:underline hover:text-cyan-600">
+              Contact
+            </Link>
+            <Link to="/login" className="text-gray-400 text-sm sm:text-base transition-all duration-300 ease-in-out hover:translate-x-1 hover:underline hover:text-cyan-600">
+              Login
+            </Link>
             </div>
             <h2
               className="text-3xl font-extrabold text-amber-400 cursor-pointer tracking-wide transition-transform hover:scale-110 animate-glow border-b-2 border-cyan-400"
@@ -410,7 +422,7 @@ const Home = () => {
             </div>
           </div>
         )}
-      </footer>
+      </footer> */}
     </div>
   );
 };

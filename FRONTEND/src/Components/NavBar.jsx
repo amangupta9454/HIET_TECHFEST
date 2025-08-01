@@ -43,11 +43,14 @@ const NavBar = () => {
           { path: "/event", label: "Events" },
           { path: "/schedule", label: "Schedule" },
           { path: "/registration", label: "Registration" },
-          ...(isAuthenticated ? [{ path: "/login", label: "Dashboard" }] : []),
+          ...(isAuthenticated ? [{ path: "/dashboard", label: "Dashboard" }] : []),
           { path: "/contact", label: "Contact" },
-          isAuthenticated
-            ? { path: "#", label: "Logout", onClick: handleLogout }
-            : { path: "/login", label: "Login" },
+          ...(isAuthenticated
+            ? [{ path: "#", label: "Logout", onClick: handleLogout }]
+            : [
+                { path: "/login", label: "Login" },
+                
+              ]),
         ].map(({ path, label, onClick }) => (
           <li
             key={path + label}
