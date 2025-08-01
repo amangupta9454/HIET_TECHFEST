@@ -1,4 +1,4 @@
-// new
+// new code 1 aug
 import { useState, useEffect } from 'react';
 
 const Registration = () => {
@@ -14,18 +14,16 @@ const Registration = () => {
         year: "",
         rollno: "",
         clg_id: null,
-        aadhar: "",
         teamSize: "",
-        aadharImage: null,
+        teamMembers: [],
         registrationId: "",
     });
     const [errors, setErrors] = useState({});
     const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState(false);   // <-- NEW
+    const [loading, setLoading] = useState(false);
     const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
-        // Fetch user data to prefill email
         const token = localStorage.getItem('token');
         if (token) {
             fetchUserData(token);
@@ -44,63 +42,96 @@ const Registration = () => {
                 setErrors({ general: data.message || 'Failed to fetch user data' });
                 localStorage.removeItem('token');
             }
-        } catch  {
+        } catch {
             setErrors({ general: 'Server error. Please try again.' });
         }
     };
 
-    const validateField = (name, value) => {
+    const validateField = (name, value, index = null) => {
         let error = '';
         const requiredFields = [
             'event', 'teamName', 'teamLeaderName', 'email', 'mobile', 'gender',
-            'college', 'course', 'year', 'rollno', 'aadhar', 'teamSize'
+            'college', 'course', 'year', 'rollno', 'teamSize'
         ];
 
         if (requiredFields.includes(name) && !value) {
             error = `${name.charAt(0).toUpperCase() + name.slice(1).replace(/([A-Z])/g, ' $1').trim()} is required`;
-        } else if (name === 'aadhar' && value && !/^\d{12}$/.test(value)) {
-            error = 'Aadhar number must be exactly 12 digits';
         } else if (name === 'teamSize' && value) {
             const num = parseInt(value);
-            if (isNaN(num) || num < 1 || num > 4) {
-                error = 'Team size must be between 1 and 4';
+            if (isNaN(num) || num < 0 || num > 10) {
+                error = 'Team size must be between 0 and 10';
             }
         } else if (name === 'clg_id' && value && value.size > 1000000) {
             error = 'College ID image must be less than 1MB';
-        } else if (name === 'aadharImage' && value && value.size > 1000000) {
-            error = 'Aadhar image must be less than 1MB';
         } else if (name === 'mobile' && value && !/^[6-9][0-9]{9}$/.test(value)) {
             error = 'Mobile number must be a valid 10-digit number starting with 6-9';
         } else if (name === 'email' && value && !/^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(value)) {
             error = 'Invalid email format';
+        } else if (name.includes('teamMembers') && index !== null) {
+            const fieldName = name.split('.')[1];
+            if (['name', 'email', 'course', 'branch', 'year', 'rollno'].includes(fieldName) && !value) {
+                error = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required for team member ${index + 1}`;
+            } else if (fieldName === 'email' && value && !/^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(value)) {
+                error = `Invalid email format for team member ${index + 1}`;
+            } else if (fieldName === 'clg_id' && value && value.size > 1000000) {
+                error = `College ID image must be less than 1MB for team member ${index + 1}`;
+            }
         }
 
         return error;
     };
 
-    const handleChange = (e) => {
+    const handleChange = (e, index = null) => {
         const { name, value, files } = e.target;
-        const newValue = files ? files[0] : value;
+        let newValue = files ? files[0] : value;
 
-        // Update user state
-        setUser((prev) => ({
-            ...prev,
-            [name]: newValue,
-        }));
-
-        // Validate the changed field
-        const error = validateField(name, newValue);
-        setErrors((prev) => ({
-            ...prev,
-            [name]: error,
-            general: prev.general && !error ? '' : prev.general,
-        }));
+        if (index !== null) {
+            setUser((prev) => {
+                const updatedMembers = [...prev.teamMembers];
+                updatedMembers[index] = { ...updatedMembers[index], [name]: newValue };
+                return { ...prev, teamMembers: updatedMembers };
+            });
+            const error = validateField(`teamMembers.${name}`, newValue, index);
+            setErrors((prev) => ({
+                ...prev,
+                [`teamMembers.${index}.${name}`]: error,
+                general: prev.general && !error ? '' : prev.general,
+            }));
+        } else {
+            if (name === 'teamSize') {
+                const num = parseInt(value) || 0;
+                setUser((prev) => ({
+                    ...prev,
+                    teamSize: value,
+                    teamMembers: Array(num).fill().map((_, i) => prev.teamMembers[i] || {
+                        name: '', email: '', course: '', branch: '', year: '', rollno: '', clg_id: null
+                    }),
+                }));
+            } else if (name === 'course') {
+                setUser((prev) => ({
+                    ...prev,
+                    course: value,
+                    year: value === 'school' ? '' : prev.year,
+                }));
+            } else {
+                setUser((prev) => ({
+                    ...prev,
+                    [name]: newValue,
+                }));
+            }
+            const error = validateField(name, newValue);
+            setErrors((prev) => ({
+                ...prev,
+                [name]: error,
+                general: prev.general && !error ? '' : prev.general,
+            }));
+        }
     };
 
     const validateForm = () => {
         const newErrors = {};
         Object.keys(user).forEach((key) => {
-            if (key !== 'registrationId') {
+            if (key !== 'registrationId' && key !== 'teamMembers') {
                 const error = validateField(key, user[key]);
                 if (error) {
                     newErrors[key] = error;
@@ -108,13 +139,21 @@ const Registration = () => {
             }
         });
 
-        // Additional check for required file fields
         if (!user.clg_id) {
             newErrors.clg_id = 'College ID is required';
         }
-        if (!user.aadharImage) {
-            newErrors.aadharImage = 'Aadhar image is required';
-        }
+
+        user.teamMembers.forEach((member, index) => {
+            ['name', 'email', 'course', 'branch', 'year', 'rollno'].forEach((field) => {
+                const error = validateField(`teamMembers.${field}`, member[field], index);
+                if (error) {
+                    newErrors[`teamMembers.${index}.${field}`] = error;
+                }
+            });
+            if (!member.clg_id) {
+                newErrors[`teamMembers.${index}.clg_id`] = `College ID is required for team member ${index + 1}`;
+            }
+        });
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -124,26 +163,24 @@ const Registration = () => {
         e.preventDefault();
         setErrors({ general: '' });
         setSuccess('');
-        setLoading(true);   // <-- NEW
+        setLoading(true);
 
-        // Validate all fields
         if (!validateForm()) {
             setErrors((prev) => ({
                 ...prev,
                 general: 'Please correct the errors in the form',
             }));
-            setLoading(false);   // <-- NEW
+            setLoading(false);
             return;
         }
 
         const token = localStorage.getItem('token');
         if (!token) {
             setErrors({ general: 'You must be logged in to register' });
-            setLoading(false);   // <-- NEW
+            setLoading(false);
             return;
         }
 
-        // Check for existing registration with rollno, teamLeaderName, or aadhar
         try {
             const checkResponse = await fetch(`${baseUrl}/api/register/check`, {
                 method: 'POST',
@@ -152,38 +189,42 @@ const Registration = () => {
                     'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
+                    teamName: user.teamName,
                     rollno: user.rollno,
-                    teamLeaderName: user.teamLeaderName,
-                    aadhar: user.aadhar,
+                    college: user.college,
+                    course: user.course,
+                    email: user.email,
                 }),
             });
 
             const checkData = await checkResponse.json();
             if (!checkResponse.ok) {
                 setErrors({ general: checkData.message || checkData.errors?.map(e => e.msg).join(', ') || 'Registration check failed' });
-                setLoading(false);   // <-- NEW
+                setLoading(false);
                 return;
             }
 
             if (checkData.isRegistered) {
-                setErrors({ general: 'This roll number, team leader name, or Aadhar number is already registered for an event' });
-                setLoading(false);   // <-- NEW
+                setErrors({ general: 'This team name, team leader roll number, college, course, or email is already registered for an event' });
+                setLoading(false);
                 return;
             }
-        } catch  {
-            setErrors({ general: 'Error checking registration status. Please try again.' });
-            setLoading(false);   // <-- NEW
-            return;
-        }
 
-        const formData = new FormData();
-        Object.keys(user).forEach((key) => {
-            if (user[key]) {
-                formData.append(key, user[key]);
-            }
-        });
+            const formData = new FormData();
+            Object.keys(user).forEach((key) => {
+                if (key === 'teamMembers') {
+                    user.teamMembers.forEach((member, index) => {
+                        Object.keys(member).forEach((field) => {
+                            if (member[field]) {
+                                formData.append(`teamMembers[${index}][${field}]`, member[field]);
+                            }
+                        });
+                    });
+                } else if (user[key]) {
+                    formData.append(key, user[key]);
+                }
+            });
 
-        try {
             const response = await fetch(`${baseUrl}/api/register`, {
                 method: 'POST',
                 headers: {
@@ -199,17 +240,16 @@ const Registration = () => {
                     event: "",
                     teamName: "",
                     teamLeaderName: "",
-                    email: user.email, // Retain email
-                    mobile: user.mobile, // Retain mobile number
+                    email: user.email,
+                    mobile: user.mobile,
                     gender: "",
                     college: "",
                     course: "",
                     year: "",
                     rollno: "",
                     clg_id: null,
-                    aadhar: "",
                     teamSize: "",
-                    aadharImage: null,
+                    teamMembers: [],
                     registrationId: "",
                 });
                 setErrors({});
@@ -220,8 +260,27 @@ const Registration = () => {
             setErrors({ general: 'Something went wrong. Please try again.' });
             console.error('Fetch error:', err);
         } finally {
-            setLoading(false);   // <-- NEW
+            setLoading(false);
         }
+    };
+
+    const getYearOptions = (course) => {
+        if (course === 'school') {
+            return [
+                { value: "", label: "Select year" },
+                { value: "9", label: "9" },
+                { value: "10", label: "10" },
+                { value: "11", label: "11" },
+                { value: "12", label: "12" },
+            ];
+        }
+        return [
+            { value: "", label: "Select year" },
+            { value: "1", label: "1" },
+            { value: "2", label: "2" },
+            { value: "3", label: "3" },
+            { value: "4", label: "4" },
+        ];
     };
 
     return (
@@ -234,16 +293,12 @@ const Registration = () => {
                     </h1>
 
                     {errors.general && (
-                        <div
-                            className="bg-red-700/40 text-red-100 p-5 rounded-2xl mb-8 text-center border border-red-600/70 shadow-inner"
-                        >
+                        <div className="bg-red-700/40 text-red-100 p-5 rounded-2xl mb-8 text-center border border-red-600/70 shadow-inner">
                             {errors.general}
                         </div>
                     )}
                     {success && (
-                        <div
-                            className="bg-green-700/40 text-green-100 p-5 rounded-2xl mb-8 text-center border border-green-600/70 shadow-inner"
-                        >
+                        <div className="bg-green-700/40 text-green-100 p-5 rounded-2xl mb-8 text-center border border-green-600/70 shadow-inner">
                             {success}
                         </div>
                     )}
@@ -315,15 +370,15 @@ const Registration = () => {
                                     type: "select",
                                     options: [
                                         { value: "", label: "Select your Course" },
+                                        { value: "school", label: "School Student (9-12)" },
                                         { value: "btech", label: "B.Tech" },
                                         { value: "bca", label: "BCA" },
                                         { value: "bba", label: "BBA" },
                                         { value: "bpharma", label: "B.PHARMA" },
                                         { value: "mtech", label: "M.TECH" },
                                         { value: "mca", label: "MCA" },
-                                        { value: "mba", label: " MBA" },
+                                        { value: "mba", label: "MBA" },
                                         { value: "inter", label: "INTERMEDIATE" },
-                                        { value: "high", label: "HIGH SCHOOL" },
                                         { value: "other", label: "OTHER" },
                                     ],
                                 },
@@ -331,17 +386,22 @@ const Registration = () => {
                                     label: "Year",
                                     name: "year",
                                     type: "select",
+                                    options: getYearOptions(user.course),
+                                },
+                                {
+                                    label: "Team Size (Excluding Leader)",
+                                    name: "teamSize",
+                                    type: "select",
                                     options: [
-                                        { value: "", label: "Select year" },
-                                        { value: "1", label: "1" },
-                                        { value: "2", label: "2" },
-                                        { value: "3", label: "3" },
-                                        { value: "4", label: "4" },
+                                        { value: "", label: "Select team size" },
+                                        ...Array.from({ length: 11 }, (_, i) => ({
+                                            value: `${i}`,
+                                            label: `${i}`
+                                        }))
                                     ],
                                 },
-                                { label: "Team Size", name: "teamSize", type: "number", placeholder: "Team size (1-4)", min: 1, max: 4 },
                                 { label: "University Roll No", name: "rollno", type: "text", placeholder: "Enter roll number" },
-                                { label: "Aadhar Number", name: "aadhar", type: "text", placeholder: "Enter 12-digit Aadhar number" },
+                                { label: "College ID (Max 1MB)", name: "clg_id", type: "file" },
                             ].map((field) => (
                                 <div key={field.name} className="space-y-4">
                                     <label className="text-white font-bold tracking-wider drop-shadow-lg">{field.label}</label>
@@ -358,6 +418,14 @@ const Registration = () => {
                                                 </option>
                                             ))}
                                         </select>
+                                    ) : field.type === "file" ? (
+                                        <input
+                                            type="file"
+                                            name={field.name}
+                                            onChange={handleChange}
+                                            accept="image/jpeg,image/jpg,image/png,application/pdf"
+                                            className={`w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border ${errors[field.name] ? 'border-red-500' : 'border-white/50'} file:mr-8 file:py-4 file:px-8 file:rounded-2xl file:border-0 file:bg-gradient-to-r file:from-purple-700 file:to-indigo-700 file:text-white hover:file:bg-gradient-to-r hover:file:from-purple-800 hover:file:to-indigo-800 transition-all duration-300 shadow-lg`}
+                                        />
                                     ) : (
                                         <input
                                             type={field.type}
@@ -365,8 +433,6 @@ const Registration = () => {
                                             value={field.type === "number" ? user[field.name] || "" : user[field.name]}
                                             onChange={handleChange}
                                             placeholder={field.placeholder}
-                                            min={field.min}
-                                            max={field.max}
                                             disabled={field.disabled}
                                             className={`w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border ${errors[field.name] ? 'border-red-500' : 'border-white/50'} focus:ring-4 focus:ring-purple-600/60 focus:border-purple-500 hover:bg-white/40 transition-all duration-300 shadow-lg disabled:bg-gray-600/50 disabled:cursor-not-allowed`}
                                         />
@@ -378,26 +444,82 @@ const Registration = () => {
                             ))}
                         </div>
 
-                        <div className="space-y-10">
-                            {[
-                                { label: "Aadhar Card (Max 1MB)", name: "aadharImage" },
-                                { label: "College ID (Max 1MB)", name: "clg_id" },
-                            ].map((field) => (
-                                <div key={field.name} className="space-y-4">
-                                    <label className="text-white font-bold tracking-wider drop-shadow-lg">{field.label}</label>
-                                    <input
-                                        type="file"
-                                        name={field.name}
-                                        onChange={handleChange}
-                                        accept="image/jpeg,image/jpg,image/png,application/pdf"
-                                        className={`w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border ${errors[field.name] ? 'border-red-500' : 'border-white/50'} file:mr-8 file:py-4 file:px-8 file:rounded-2xl file:border-0 file:bg-gradient-to-r file:from-purple-700 file:to-indigo-700 file:text-white hover:file:bg-gradient-to-r hover:file:from-purple-800 hover:file:to-indigo-800 transition-all duration-300 shadow-lg`}
-                                    />
-                                    {errors[field.name] && (
-                                        <p className="text-red-400 text-sm mt-1">{errors[field.name]}</p>
-                                    )}
+                        {user.teamMembers.map((member, index) => (
+                            <div key={index} className="space-y-10 border-t border-white/20 pt-8 mt-8">
+                                <h2 className="text-2xl font-bold text-white">Team Member {index + 1}</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    {[
+                                        { label: "Name", name: "name", type: "text", placeholder: `Enter team member ${index + 1} name` },
+                                        { label: "Email", name: "email", type: "email", placeholder: `Enter team member ${index + 1} email` },
+                                        {
+                                            label: "Course",
+                                            name: "course",
+                                            type: "select",
+                                            options: [
+                                                { value: "", label: "Select course" },
+                                                { value: "school", label: "School Student (9-12)" },
+                                                { value: "btech", label: "B.Tech" },
+                                                { value: "bca", label: "BCA" },
+                                                { value: "bba", label: "BBA" },
+                                                { value: "bpharma", label: "B.PHARMA" },
+                                                { value: "mtech", label: "M.TECH" },
+                                                { value: "mca", label: "MCA" },
+                                                { value: "mba", label: "MBA" },
+                                                { value: "inter", label: "INTERMEDIATE" },
+                                                { value: "other", label: "OTHER" },
+                                            ],
+                                        },
+                                        { label: "Branch", name: "branch", type: "text", placeholder: `Enter team member ${index + 1} branch` },
+                                        {
+                                            label: "Year",
+                                            name: "year",
+                                            type: "select",
+                                            options: getYearOptions(member.course),
+                                        },
+                                        { label: "Roll No", name: "rollno", type: "text", placeholder: `Enter team member ${index + 1} roll number` },
+                                        { label: `College ID (Max 1MB)`, name: "clg_id", type: "file" },
+                                    ].map((field) => (
+                                        <div key={field.name} className="space-y-4">
+                                            <label className="text-white font-bold tracking-wider drop-shadow-lg">{field.label}</label>
+                                            {field.type === "select" ? (
+                                                <select
+                                                    name={field.name}
+                                                    value={member[field.name] || ""}
+                                                    onChange={(e) => handleChange(e, index)}
+                                                    className={`w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border ${errors[`teamMembers.${index}.${field.name}`] ? 'border-red-500' : 'border-white/50'} focus:ring-4 focus:ring-purple-600/60 focus:border-purple-500 hover:bg-white/40 transition-all duration-300 shadow-lg`}
+                                                >
+                                                    {field.options.map((opt) => (
+                                                        <option key={opt.value} value={opt.value} className="bg-indigo-900 text-white">
+                                                            {opt.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : field.type === "file" ? (
+                                                <input
+                                                    type="file"
+                                                    name={field.name}
+                                                    onChange={(e) => handleChange(e, index)}
+                                                    accept="image/jpeg,image/jpg,image/png,application/pdf"
+                                                    className={`w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border ${errors[`teamMembers.${index}.${field.name}`] ? 'border-red-500' : 'border-white/50'} file:mr-8 file:py-4 file:px-8 file:rounded-2xl file:border-0 file:bg-gradient-to-r file:from-purple-700 file:to-indigo-700 file:text-white hover:file:bg-gradient-to-r hover:file:from-purple-800 hover:file:to-indigo-800 transition-all duration-300 shadow-lg`}
+                                                />
+                                            ) : (
+                                                <input
+                                                    type={field.type}
+                                                    name={field.name}
+                                                    value={member[field.name] || ""}
+                                                    onChange={(e) => handleChange(e, index)}
+                                                    placeholder={field.placeholder}
+                                                    className={`w-full p-5 rounded-2xl bg-gradient-to-r from-white/15 to-white/25 text-white border ${errors[`teamMembers.${index}.${field.name}`] ? 'border-red-500' : 'border-white/50'} focus:ring-4 focus:ring-purple-600/60 focus:border-purple-500 hover:bg-white/40 transition-all duration-300 shadow-lg`}
+                                                />
+                                            )}
+                                            {errors[`teamMembers.${index}.${field.name}`] && (
+                                                <p className="text-red-400 text-sm mt-1">{errors[`teamMembers.${index}.${field.name}`]}</p>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
 
                         <div className="text-center">
                             <button

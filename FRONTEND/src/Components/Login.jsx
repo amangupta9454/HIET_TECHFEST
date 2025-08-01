@@ -26,21 +26,6 @@ const Login = ({ setModeFromNavbar }) => {
   const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
-    // gsap.to('.background-overlay', {
-    //   background: 'linear-gradient(45deg, #1a1033, #0d1b38, #2a0a4d, #1a1033)',
-    //   backgroundSize: '200% 200%',
-    //   duration: 15,
-    //   repeat: -1,
-    //   yoyo: true,
-    //   ease: 'linear',
-    // });
-
-    // gsap.to('.button-shine', {
-    //   xPercent: 200,
-    //   duration: 2,
-    //   repeat: -1,
-    //   ease: 'linear',
-    // });
 
     const token = localStorage.getItem('token');
     if (token) {
