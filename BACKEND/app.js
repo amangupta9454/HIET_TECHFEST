@@ -888,7 +888,7 @@ if (!fs.existsSync(tmpDir)) {
   fs.mkdirSync(tmpDir, { recursive: true }); // Create Uploads directory if it doesn't exist
 }
 
-app.use(cors({ origin: "*" }));
+app.use(cors("*"));
 app.use(express.json());
 app.use(express.static('public', {
     setHeaders: (res, path) => {
